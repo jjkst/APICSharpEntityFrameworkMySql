@@ -1,11 +1,14 @@
-using Microsoft.EntityFrameworkCore;
 using EcommerceApi.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using System.Text.Json;
 
 namespace EcommerceApi.Context
 {
     public class ApplicationDbContext : DbContext
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+            : base(options) { }
 
         public DbSet<User> Users { get; set; }
         public DbSet<Service> Services { get; set; }
@@ -14,10 +17,16 @@ namespace EcommerceApi.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Service>()
-            .HasIndex(p => p.Title)
-            .IsUnique();
+            var pricingPlansConverter = new ValueConverter<List<PricingPlan>, string>(
+                v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null),
+                v => JsonSerializer.Deserialize<List<PricingPlan>>(v, (JsonSerializerOptions)null)
+            );
 
+            modelBuilder.Entity<Service>().HasIndex(p => p.Title).IsUnique();
+            modelBuilder
+                .Entity<Service>()
+                .Property(s => s.PricingPlans)
+                .HasConversion(pricingPlansConverter);
             base.OnModelCreating(modelBuilder);
         }
     }

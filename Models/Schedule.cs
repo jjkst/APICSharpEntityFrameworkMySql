@@ -12,17 +12,16 @@ namespace EcommerceApi.Models
         public string ContactName { get; set; }
 
         [Required]
-        public string Service { get; set; }
-
-        [Required]
         public DateTime SelectedDate { get; set; }
 
         [Required]
-        public string Timeslot { get; set; }
+        public List<string> Services { get; set; }
+
+        [Required]
+        public List<string> Timeslots { get; set; }
 
         public string Note { get; set; }
 
-        [Required]
         public string Uid { get; set; }
     }
 }

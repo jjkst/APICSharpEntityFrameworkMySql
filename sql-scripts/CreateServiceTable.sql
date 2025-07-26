@@ -3,7 +3,8 @@ DROP TABLE IF EXISTS Services;
 CREATE TABLE Services (
     Id INT AUTO_INCREMENT PRIMARY KEY,
     Title VARCHAR(100) NOT NULL,
-    Description VARCHAR(500) NOT NULL,
     FileName VARCHAR(100) DEFAULT NULL,
-    Price DECIMAL(10, 2) NOT NULL
+    Description VARCHAR(1000) NOT NULL,
+    Features VARCHAR(1000) NOT NULL,
+    PricingPlans JSON
 );

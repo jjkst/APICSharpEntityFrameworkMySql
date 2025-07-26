@@ -16,9 +16,9 @@ namespace EcommerceApi.Models
         public DateTime EndDate { get; set; }
 
         [Required]
-        public List<string> Timeslots { get; set; }
+        public List<string> Services { get; set; }
 
         [Required]
-        public List<string> Services { get; set; }
+        public List<string> Timeslots { get; set; }
     }
 }
