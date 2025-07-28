@@ -33,7 +33,7 @@ namespace EcommerceApi.Controllers
         public override async Task<ActionResult<Service>> Update(int id, [FromBody] Service entity)
         {
             bool duplicateService = await _context.Services.AnyAsync(ps =>
-                ps.Title == entity.Title || ps.Description == entity.Description
+                ps.Id != id && (ps.Title == entity.Title || ps.Description == entity.Description)
             );
             if (duplicateService)
             {

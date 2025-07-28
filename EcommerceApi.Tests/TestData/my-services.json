@@ -1,0 +1,60 @@
+[
+  {
+    "Title": "Website Development as a Service",
+    "FileName": "ruku-website.png",
+    "Description": "Welcome to your ultimate solution for professional, hassle-free website development and maintenance. With our Website Development as a Service (WDaaS), you get more than just a website; you get a dedicated digital partner committed to your online success. We handle all the technical complexities so you can focus on what you do best—running your business.",
+    "Features": [
+      "Custom Website Design & Development: We'll create a stunning, responsive, and user-friendly website tailored to your brand and objectives.",
+      "SEO Optimization: We build your website with best practices for search engine optimization to help you rank higher and attract more organic traffic.",
+      "Website Hosting & Domain Management: Secure and reliable hosting, plus assistance with managing your domain name.",
+      "Regular Backups: Your data is safe with automated, frequent backups to prevent any loss.",
+      "Security Monitoring: Proactive monitoring and immediate response to potential security threats.",
+      "Performance Optimization: We ensure your website loads quickly and performs smoothly across all devices.",
+      "Ongoing Support & Consulting: Dedicated support for any questions or issues, along with strategic advice for your online presence."
+    ],
+    "PricingPlans": [
+      {
+        "Name": "Basic Plan",
+        "InitialSetupFee": "1000",
+        "MonthlySubscription": "75",
+        "Features": [
+            "Custom 5-page website design", 
+            "Responsive design (mobile-friendly)",
+            "Basic SEO setup",
+            "Standard Hosting",
+            "Monthly security updates",
+            "Email support",
+            "1 hour of monthly support"
+        ]
+      },
+      {
+        "Name": "Standard",
+        "InitialSetupFee": "250",
+        "MonthlySubscription": "75",
+        "Features": [
+            "Custom 10-15 page website design",
+            "Advanced SEO optimization",
+            "Premium hosting with faster loading speeds",
+            "Weekly security and software updates",
+            "Priority email and phone support",
+            "Up to 3 hours of content updates/month",
+            "Blog setup and integration"
+        ]
+      },
+      {
+        "Name": "Premium",
+        "InitialSetupFee": "250",
+        "MonthlySubscription": "75",
+        "Features": [
+            "Unlimited custom page design",
+            "In-depth SEO strategy and ongoing optimization",
+            "High-performance hosting with CDN",
+            "Daily security monitoring and real-time threat protection",
+            "24/7 dedicated support (email, phone, chat)",
+            "Up to 6 hours of content updates/month",
+            "E-commerce functionality, CRM integration, consulting"
+        ]
+      }
+    ]
+  }
+]
