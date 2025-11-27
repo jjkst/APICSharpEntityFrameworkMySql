@@ -49,41 +49,6 @@ namespace RukuServiceApi.Migrations
                     b.ToTable("Availabilities");
                 });
 
-            modelBuilder.Entity("RukuServiceApi.Models.RukuService", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Features")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("FileName")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("PricingPlans")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("varchar(255)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Title")
-                        .IsUnique();
-
-                    b.ToTable("RukuServices");
-                });
-
             modelBuilder.Entity("RukuServiceApi.Models.Schedule", b =>
                 {
                     b.Property<int>("Id")

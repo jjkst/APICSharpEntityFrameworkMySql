@@ -11,7 +11,6 @@ namespace RukuServiceApi.Context
     {
         public DbSet<User> Users { get; set; }
         public DbSet<Service> Services { get; set; }
-        public DbSet<RukuService> RukuServices { get; set; }
         public DbSet<Availability> Availabilities { get; set; }
         public DbSet<Schedule> Schedules { get; set; }
 
@@ -37,13 +36,6 @@ namespace RukuServiceApi.Context
             modelBuilder.Entity<Service>().HasIndex(p => p.Title).IsUnique();
             modelBuilder
                 .Entity<Service>()
-                .Property(s => s.PricingPlans)
-                .HasConversion(pricingPlansConverter)
-                .Metadata.SetValueComparer(pricingPlansComparer);
-
-            modelBuilder.Entity<RukuService>().HasIndex(p => p.Title).IsUnique();
-            modelBuilder
-                .Entity<RukuService>()
                 .Property(s => s.PricingPlans)
                 .HasConversion(pricingPlansConverter)
                 .Metadata.SetValueComparer(pricingPlansComparer);

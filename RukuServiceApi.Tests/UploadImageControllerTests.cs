@@ -27,10 +27,6 @@ public sealed class UploadImageControllerTests
 
         var response = await Client.PostAsync("/api/uploadimage", content);
 
-        // Authorization happens before model binding, but if model binding fails,
-        // we might get BadRequest. However, with proper form data, we should get Unauthorized.
-        // If we get BadRequest, it might be due to model binding issues, but the test
-        // should still verify that unauthorized requests are rejected.
         Assert.IsTrue(
             response.StatusCode == System.Net.HttpStatusCode.Unauthorized
                 || response.StatusCode == System.Net.HttpStatusCode.BadRequest
