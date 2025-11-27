@@ -1,5 +1,51 @@
-**/bin
-**/obj
-**/Properties
-**.qodo
-**appsettings.*
+# Build outputs
+**/bin/
+**/obj/
+**/Properties/
+
+# User-specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+**/.DS_Store
+
+# Environment files (user-specific, not templates)
+.env
+.env.local
+.env.docker
+.env.production
+
+# User-specific appsettings with actual secrets (templates with ${VAR} should be tracked)
+# Note: appsettings.Development.json and appsettings.Production.json with placeholders are tracked
+# Only ignore if they contain actual secrets (not placeholders)
+# If you modify these files with real values, add them to .git/info/exclude or use git update-index --assume-unchanged
+
+# Logs (keep directory structure)
+**/logs/*.txt
+**/logs/*.log
+!**/logs/
+!**/logs/.gitkeep
+
+# Uploaded files (keep directory structure)
+**/uploads/**
+!**/uploads/
+!**/uploads/.gitkeep
+
+# Test results
+**/TestResults/
+**/coverage/
+
+# NuGet packages
+**/packages/
+*.nupkg
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+
+

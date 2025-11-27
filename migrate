@@ -1,0 +1,5 @@
+#!/bin/bash
+# Simple wrapper script for the C# migration tool
+dotnet run --project MigrateTool -- "$@"
+
+

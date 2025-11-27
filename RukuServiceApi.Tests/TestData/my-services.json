@@ -1,0 +1,261 @@
+[
+  {
+    "Title": "Build Your Website",
+    "FileName": "ruku-website.png",
+    "Description": "Welcome to your ultimate solution for professional, hassle-free website development and maintenance. With our Website Development as a Service (WDaaS), you get more than just a website; you get a dedicated digital partner committed to your online success. We handle all the technical complexities so you can focus on what you do best—running your business.",
+    "Features": [
+      "Custom Website Design & Development: We'll create a stunning, responsive, and user-friendly website tailored to your brand and objectives.",
+      "SEO Optimization: We build your website with best practices for search engine optimization to help you rank higher and attract more organic traffic.",
+      "Website Hosting & Domain Management: Secure and reliable hosting, plus assistance with managing your domain name.",
+      "Regular Backups: Your data is safe with automated, frequent backups to prevent any loss.",
+      "Security Monitoring: Proactive monitoring and immediate response to potential security threats.",
+      "Performance Optimization: We ensure your website loads quickly and performs smoothly across all devices.",
+      "Ongoing Support & Consulting: Dedicated support for any questions or issues, along with strategic advice for your online presence."
+    ],
+    "PricingPlans": [
+      {
+        "Name": "Basic Plan",
+        "InitialSetupFee": "1000",
+        "MonthlySubscription": "75",
+        "Features": [
+            "Custom 5-page website design", 
+            "Responsive design (mobile-friendly)",
+            "Basic SEO setup",
+            "Standard Hosting",
+            "Monthly security updates",
+            "Email support",
+            "1 hour of monthly support"
+        ]
+      },
+      {
+        "Name": "Standard",
+        "InitialSetupFee": "250",
+        "MonthlySubscription": "75",
+        "Features": [
+            "Custom 10-15 page website design",
+            "Advanced SEO optimization",
+            "Premium hosting with faster loading speeds",
+            "Weekly security and software updates",
+            "Priority email and phone support",
+            "Up to 3 hours of content updates/month",
+            "Blog setup and integration"
+        ]
+      },
+      {
+        "Name": "Premium",
+        "InitialSetupFee": "250",
+        "MonthlySubscription": "75",
+        "Features": [
+            "Unlimited custom page design",
+            "In-depth SEO strategy and ongoing optimization",
+            "High-performance hosting with CDN",
+            "Daily security monitoring and real-time threat protection",
+            "24/7 dedicated support (email, phone, chat)",
+            "Up to 6 hours of content updates/month",
+            "E-commerce functionality, CRM integration, consulting"
+        ]
+      }
+    ]
+  },
+  {
+    "Title": "UI Automation Training",
+    "FileName": "ruku-teachinguiautomation.png",
+    "Description": "Elevate your team's quality assurance and development processes with our UI Automation Training as a Service. In today's fast-paced digital world, manual testing is a bottleneck. Our program is designed to empower individuals and teams with the skills to build, maintain, and run automated UI tests, ensuring your applications are always reliable and performant.",
+    "Features": [
+      "Automate repetitive testing tasks, freeing up your team to focus on new features and more complex issues",
+      "Run comprehensive tests consistently and reliably, catching bugs early in the development cycle.",
+      "Shorten your release cycles by integrating automated testing into your continuous integration/continuous deployment (CI/CD) pipeline.",
+      "Gain practical, hands-on knowledge of how to create and manage robust UI automation suites using industry-standard tools and best practices"
+    ],
+    "PricingPlans": [
+      {
+        "Name": "The Foundation",
+        "InitialSetupFee": "1000",
+        "MonthlySubscription": "75",
+        "Features": [
+            "One-on-one sessions to learn UI automation basics", 
+            "Basic email support for technical questions.",
+            "1 hour of monthly support for any UI automation-related questions."
+        ]
+      },
+            {
+        "Name": "The Growth",
+        "InitialSetupFee": "250",
+        "MonthlySubscription": "75",
+        "Features": [
+            "Group workshops to learn UI automation.",
+            "Creation of a basic UI automation framework",
+            "Priority email and phone support.",
+            "Up to 3 hours of monthly support for framework development and troubleshooting."
+        ]
+      },
+      {
+        "Name": "The Enterprise",
+        "InitialSetupFee": "250",
+        "MonthlySubscription": "75",
+        "Features": [
+            "On-site training for UI automation for the entire team",
+            "Dedicated consultation and support for building a large-scale UI automation framework.",
+            "Priority email and phone support.",
+            "Up to 6 hours of monthly support for ongoing optimization and team mentoring."
+        ]
+      }
+    ]
+  },
+  {
+    "Title": "Website Maintenance as a Service",
+    "FileName": "ruku-mobile-app.png",
+    "Description": "Your website is a critical business asset, and its health, security, and performance are paramount. Our Website Maintenance as a Service ensures your site remains secure, fast, and up-to-date, allowing you to focus on your core business while we handle the technical upkeep.",
+    "Features": [
+      "Security & Protection: Proactive monitoring and updates protect your site from vulnerabilities, malware, and cyber threats.",
+      "Performance Optimization: We ensure your website loads quickly and performs smoothly, which is crucial for user experience and search engine rankings.",
+      "Content & Functionality: We handle routine content updates, backups, and software patches to keep your site fresh and functional.",
+      "Reliable Support: We are your dedicated technical partner, ready to address issues and provide strategic advice."
+    ],
+    "PricingPlans": [
+      {
+        "Name": "The Foundation",
+        "InitialSetupFee": "1000",
+        "MonthlySubscription": "75",
+        "Features": [
+            "Weekly website health check-ups.", 
+            "Basic security updates and monitoring.",
+            "Standard Hosting",
+            "Email support",
+            "1 hour of monthly support"
+        ]
+      },
+      {
+        "Name": "The Growth",
+        "InitialSetupFee": "250",
+        "MonthlySubscription": "75",
+        "Features": [
+            "Weekly security and software updates.",
+            "Premium hosting with faster loading speeds",
+            "Priority email and phone support",
+            "Up to 3 hours of monthly support"
+        ]
+      },
+      {
+        "Name": "The Enterprise",
+        "InitialSetupFee": "250",
+        "MonthlySubscription": "75",
+        "Features": [
+            "Daily security monitoring and real-time threat protection.",
+            "High-performance hosting with CDN",
+            "24/7 dedicated support (email, phone, chat)",
+            "Up to 6 hours of monthly support",
+            "E-commerce functionality, CRM integration, and ongoing consulting."
+        ]
+      }
+    ]
+  },
+  {
+    "Title": "UI Regression Suite as a Service",
+    "FileName": "ruku-uiautomation.png",
+    "Description": "Ensure the stability and quality of your applications with our UI Regression Suite as a Service. We build and integrate a comprehensive, automated testing suite that runs after every code change, immediately flagging any bugs or unintended side effects. This proactive approach saves time, reduces risk, and guarantees a consistent user experience.",
+    "Features": [
+      "Custom Mobile App Design & Development: Tailored solutions for iOS and Android platforms.",
+      "User Experience Focus: Intuitive design that enhances user engagement and satisfaction.",
+      "API Integration: Seamless integration with existing systems and third-party services.",
+      "App Store Deployment: Assistance with publishing your app on Google Play and Apple App Store.",
+      "Ongoing Maintenance & Support: Regular updates, bug fixes, and feature enhancements."
+    ],
+    "PricingPlans": [
+      {
+        "Name": "Basic Plan",
+        "InitialSetupFee": "1000",
+        "MonthlySubscription": "75",
+        "Features": [
+            "Custom 5-screen mobile app design", 
+            "Responsive design (mobile-friendly)",
+            "Basic API integration",
+            "Standard Hosting",
+            "Monthly security updates",
+            "Email support",
+            "1 hour of monthly support"
+        ]
+      },
+      {
+        "Name": "Standard",
+        "InitialSetupFee": "250",
+        "MonthlySubscription": "75",
+        "Features": [
+            "Custom 10-15 screen mobile app design",
+            "Advanced API integration",
+            "Premium hosting with faster loading speeds",
+            "Weekly security and software updates",
+            "Priority email and phone support",
+            "Up to 3 hours of monthly support"
+        ]
+      },
+      {
+        "Name": "Premium",
+        "InitialSetupFee": "250",
+        "MonthlySubscription": "75",
+        "Features": [
+            "Unlimited custom screen design",
+            "In-depth API strategy and ongoing optimization",
+            "High-performance hosting with CDN",
+            "Daily security monitoring and real-time threat protection",
+            "24/7 dedicated support (email, phone, chat)",
+            "Up to 6 hours of monthly support"
+        ]
+      }
+    ]
+  },
+  {
+    "Title": "Build Your Mobile App",
+    "FileName": "ruku-mobile-app.png",
+    "Description": "Transform your business with our Mobile App Development as a Service (MADaaS). We specialize in creating high-quality, user-friendly mobile applications that enhance customer engagement and drive business growth. Whether you need a native app for iOS or Android, or a cross-platform solution, we have the expertise to bring your vision to life.",
+    "Features": [
+      "Custom Mobile App Design & Development: Tailored solutions for iOS and Android platforms.",
+      "User Experience Focus: Intuitive design that enhances user engagement and satisfaction.",
+      "API Integration: Seamless integration with existing systems and third-party services.",
+      "App Store Deployment: Assistance with publishing your app on Google Play and Apple App Store.",
+      "Ongoing Maintenance & Support: Regular updates, bug fixes, and feature enhancements."
+    ],
+    "PricingPlans": [
+      {
+        "Name": "Basic Plan",
+        "InitialSetupFee": "1000",
+        "MonthlySubscription": "75",
+        "Features": [
+            "Custom 5-screen mobile app design", 
+            "Responsive design (mobile-friendly)",
+            "Basic API integration",
+            "Standard Hosting",
+            "Monthly security updates",
+            "Email support",
+            "1 hour of monthly support"
+        ]
+      },
+      {
+        "Name": "Standard",
+        "InitialSetupFee": "250",
+        "MonthlySubscription": "75",
+        "Features": [
+            "Custom 10-15 screen mobile app design",
+            "Advanced API integration",
+            "Premium hosting with faster loading speeds",
+            "Weekly security and software updates",
+            "Priority email and phone support",
+            "Up to 3 hours of monthly support"
+        ]
+      },
+      {
+        "Name": "Premium",
+        "InitialSetupFee": "250",
+        "MonthlySubscription": "75",
+        "Features": [
+            "Unlimited custom screen design",
+            "In-depth API strategy and ongoing optimization",
+            "High-performance hosting with CDN",
+            "Daily security monitoring and real-time threat protection",
+            "24/7 dedicated support (email, phone, chat)",
+            "Up to 6 hours of monthly support"
+        ]
+      }
+    ]
+  }
+]
