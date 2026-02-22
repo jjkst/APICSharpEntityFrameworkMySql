@@ -16,11 +16,11 @@ namespace RukuServiceApi.Middleware
             var startTime = DateTime.UtcNow;
             var correlationId = context.TraceIdentifier;
 
-            // Log request
+            // Log request path only (exclude query string to avoid logging sensitive data)
             Log.Information(
                 "Request started: {Method} {Path} from {RemoteIp} - CorrelationId: {CorrelationId}",
                 context.Request.Method,
-                context.Request.Path,
+                context.Request.Path.Value,
                 context.Connection.RemoteIpAddress,
                 correlationId
             );
@@ -38,11 +38,11 @@ namespace RukuServiceApi.Middleware
             var endTime = DateTime.UtcNow;
             var duration = endTime - startTime;
 
-            // Log response
+            // Log response (path only, no query string)
             Log.Information(
                 "Request completed: {Method} {Path} - Status: {StatusCode} - Duration: {Duration}ms - CorrelationId: {CorrelationId}",
                 context.Request.Method,
-                context.Request.Path,
+                context.Request.Path.Value,
                 context.Response.StatusCode,
                 duration.TotalMilliseconds,
                 correlationId

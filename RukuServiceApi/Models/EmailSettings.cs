@@ -7,5 +7,6 @@ namespace RukuServiceApi.Models
         public string SmtpUsername { get; set; } = string.Empty;
         public string SmtpPassword { get; set; } = string.Empty;
         public bool EnableSsl { get; set; }
+        public string RecipientEmail { get; set; } = string.Empty;
     }
 }

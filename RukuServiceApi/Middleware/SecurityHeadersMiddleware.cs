@@ -17,8 +17,8 @@ namespace RukuServiceApi.Middleware
             context.Response.Headers["X-XSS-Protection"] = "1; mode=block";
             context.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
 
-            // Only add HSTS in production
-            if (!context.Request.IsHttps)
+            // Only add HSTS over HTTPS connections
+            if (context.Request.IsHttps)
             {
                 context.Response.Headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains";
             }

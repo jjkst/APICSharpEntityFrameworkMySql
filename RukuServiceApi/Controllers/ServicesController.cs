@@ -6,7 +6,7 @@ using RukuServiceApi.Models;
 
 namespace RukuServiceApi.Controllers
 {
-    [Authorize(Policy = "AdminOrOwner")] // Only admins and owners can manage services
+    [Authorize(Policy = AuthorizationPolicies.AdminOrOwner)] // Only admins and owners can manage services
     public class ServicesController(
         ApplicationDbContext context,
         ILogger<ServicesController> logger

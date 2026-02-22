@@ -88,9 +88,9 @@ namespace RukuServiceApi.Controllers
         {
             try
             {
-                // Check if user already exists
+                // Check if user already exists (case-insensitive email comparison)
                 var existingUser = await _context.Users.FirstOrDefaultAsync(u =>
-                    u.Email == request.Email || u.Uid == request.Uid
+                    u.Email.ToLower() == request.Email.ToLower() || u.Uid == request.Uid
                 );
 
                 if (existingUser != null)

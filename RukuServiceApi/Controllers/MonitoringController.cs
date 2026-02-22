@@ -1,12 +1,13 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RukuServiceApi.Models;
 
 namespace RukuServiceApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Policy = "AdminOnly")] // Only admins can access monitoring endpoints
+    [Authorize(Policy = AuthorizationPolicies.AdminOnly)] // Only admins can access monitoring endpoints
     public class MonitoringController : ControllerBase
     {
         private readonly ILogger<MonitoringController> _logger;

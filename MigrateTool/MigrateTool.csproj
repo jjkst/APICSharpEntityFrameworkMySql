@@ -6,6 +6,9 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>MigrateTool</RootNamespace>
+    <RestoreSources>
+        https://api.nuget.org/v3/index.json;
+		</RestoreSources>
   </PropertyGroup>
 
   <ItemGroup>

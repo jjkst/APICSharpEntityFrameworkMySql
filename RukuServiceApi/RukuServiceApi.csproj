@@ -6,6 +6,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>RukuServiceApi</AssemblyName>
     <RootNamespace>RukuServiceApi</RootNamespace>
+    <RestoreSources>
+        https://api.nuget.org/v3/index.json;
+		</RestoreSources>
   </PropertyGroup>
 
   <ItemGroup>

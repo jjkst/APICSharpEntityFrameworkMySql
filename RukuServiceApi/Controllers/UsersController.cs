@@ -12,7 +12,7 @@ namespace RukuServiceApi.Controllers
     {
         protected override object GetEntityId(User entity) => entity.Id;
 
-        [Authorize(Policy = "AdminOnly")] // Only admins can update user roles
+        [Authorize(Policy = AuthorizationPolicies.AdminOnly)] // Only admins can update user roles
         [HttpPut("{id:int}/role")]
         public async Task<IActionResult> UpdateUserRole(int id, [FromBody] string newRole)
         {

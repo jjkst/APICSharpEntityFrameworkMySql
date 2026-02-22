@@ -9,7 +9,7 @@ namespace RukuServiceApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize] // Require authentication for email operations
+    [Authorize]
     public class EmailController(IOptions<EmailSettings> emailSettings) : ControllerBase
     {
         private readonly EmailSettings _emailSettings = emailSettings.Value;
@@ -35,15 +35,15 @@ namespace RukuServiceApi.Controllers
                     {
                         From = new MailAddress(username),
                         Subject = "Question from RukuService Application",
-                        Body = 
+                        Body =
                             $"A new question has been submitted:<br><br>"
-                            + $"<strong>Name:</strong> {contact.FirstName} {contact.LastName}<br>"
-                            + $"<strong>Email:</strong> {contact.Email}<br>"
-                            + $"<strong>Phone:</strong> {contact.PhoneNumber}<br>"
-                            + $"<strong>Question:</strong> {contact.Questions}",
+                            + $"<strong>Name:</strong> {WebUtility.HtmlEncode(contact.FirstName)} {WebUtility.HtmlEncode(contact.LastName)}<br>"
+                            + $"<strong>Email:</strong> {WebUtility.HtmlEncode(contact.Email)}<br>"
+                            + $"<strong>Phone:</strong> {WebUtility.HtmlEncode(contact.PhoneNumber)}<br>"
+                            + $"<strong>Question:</strong> {WebUtility.HtmlEncode(contact.Questions)}",
                         IsBodyHtml = true,
                     };
-                    message.To.Add("jjkst.dev@gmail.com");
+                    message.To.Add(_emailSettings.RecipientEmail);
 
                     await client.SendMailAsync(message);
                 }
@@ -53,22 +53,32 @@ namespace RukuServiceApi.Controllers
             catch (SmtpException smtpEx)
             {
                 return BadRequest(
-                    new
+                    new ErrorResponse
                     {
-                        error = $"SMTP Error: {smtpEx.Message}",
-                        statusCode = smtpEx.StatusCode,
-                        details = "Check your SMTP credentials and settings",
+                        Message = "Failed to send email",
+                        Details = $"SMTP Error: {smtpEx.Message}",
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        CorrelationId = HttpContext.TraceIdentifier,
+                        Path = HttpContext.Request.Path,
                     }
                 );
             }
             catch (Exception ex)
             {
                 return BadRequest(
-                    new { error = $"Error sending email: {ex.Message}", details = ex.StackTrace }
+                    new ErrorResponse
+                    {
+                        Message = "Error sending email",
+                        Details = ex.Message,
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        CorrelationId = HttpContext.TraceIdentifier,
+                        Path = HttpContext.Request.Path,
+                    }
                 );
             }
         }
 
+        [Authorize(Policy = AuthorizationPolicies.AdminOnly)]
         [HttpGet("settings")]
         public IActionResult GetEmailSettings()
         {
@@ -78,7 +88,6 @@ namespace RukuServiceApi.Controllers
                     SmtpServer = _emailSettings.SmtpServer,
                     SmtpPort = _emailSettings.SmtpPort,
                     EnableSsl = _emailSettings.EnableSsl,
-                    Username = _emailSettings.SmtpUsername,
                 }
             );
         }

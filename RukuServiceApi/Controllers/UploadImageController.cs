@@ -1,12 +1,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RukuServiceApi.Models;
 using RukuServiceApi.Services;
 
 namespace RukuServiceApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Policy = "AdminOrOwner")] // Only admins and owners can upload files
+    [Authorize(Policy = AuthorizationPolicies.AdminOrOwner)] // Only admins and owners can upload files
     public class UploadImageController(
         IFileUploadService fileUploadService,
         ILogger<UploadImageController> uploadImageController

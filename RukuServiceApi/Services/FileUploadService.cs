@@ -105,6 +105,14 @@ namespace RukuServiceApi.Services
                 return false;
             }
 
+            // Check MIME type to prevent extension spoofing
+            if (!_settings.AllowedMimeTypes.Contains(file.ContentType))
+            {
+                errorMessage =
+                    $"File MIME type '{file.ContentType}' is not allowed. Allowed types: {string.Join(", ", _settings.AllowedMimeTypes)}";
+                return false;
+            }
+
             // Check filename for suspicious patterns
             if (ContainsSuspiciousPatterns(file.FileName))
             {
@@ -139,7 +147,15 @@ namespace RukuServiceApi.Services
             // Prevent path traversal attacks
             var fullPath = Path.GetFullPath(path);
             var basePath = Path.GetFullPath(_settings.UploadPath);
-            return fullPath.StartsWith(basePath);
+
+            // Ensure base path ends with separator to prevent prefix attacks (e.g. "uploads_evil" matching "uploads")
+            if (!basePath.EndsWith(Path.DirectorySeparatorChar))
+            {
+                basePath += Path.DirectorySeparatorChar;
+            }
+
+            // Use case-insensitive comparison on Windows
+            return fullPath.StartsWith(basePath, StringComparison.OrdinalIgnoreCase);
         }
 
         private bool ContainsSuspiciousPatterns(string fileName)

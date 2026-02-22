@@ -169,11 +169,11 @@ builder
 // Configure Authorization Policies
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+    options.AddPolicy(AuthorizationPolicies.AdminOnly, policy => policy.RequireRole("Admin"));
 
-    options.AddPolicy("AdminOrOwner", policy => policy.RequireRole("Admin", "Owner"));
+    options.AddPolicy(AuthorizationPolicies.AdminOrOwner, policy => policy.RequireRole("Admin", "Owner"));
 
-    options.AddPolicy("AuthenticatedUser", policy => policy.RequireAuthenticatedUser());
+    options.AddPolicy(AuthorizationPolicies.AuthenticatedUser, policy => policy.RequireAuthenticatedUser());
 });
 
 // Add CORS policy - configure based on environment
@@ -195,7 +195,7 @@ builder.Services.AddCors(options =>
     }
     else
     {
-        // Production CORS - be more restrictive
+        // Production CORS - restrict origins, methods, and headers
         var allowedOrigins =
             builder.Configuration["AllowedOrigins"]?.Split(',')
             ?? new[] { "https://yourdomain.com" };
@@ -205,8 +205,8 @@ builder.Services.AddCors(options =>
             {
                 policy
                     .WithOrigins(allowedOrigins)
-                    .AllowAnyHeader()
-                    .AllowAnyMethod()
+                    .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                    .WithHeaders("Content-Type", "Authorization")
                     .AllowCredentials();
             }
         );

@@ -5,6 +5,9 @@
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <RestoreSources>
+        https://api.nuget.org/v3/index.json;
+		</RestoreSources>
   </PropertyGroup>
 
   <ItemGroup>

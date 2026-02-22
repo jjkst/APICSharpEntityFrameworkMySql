@@ -4,6 +4,8 @@
 **/Properties/
 
 # User-specific files
+.claude
+claude.md
 .vscode/
 .idea/
 *.swp

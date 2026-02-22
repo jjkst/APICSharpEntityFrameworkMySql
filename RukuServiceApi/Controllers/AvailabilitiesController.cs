@@ -24,7 +24,10 @@ namespace RukuServiceApi.Controllers
         {
             try
             {
-                var availabilities = await _context.Availabilities.ToListAsync();
+                var today = DateTime.Today;
+                var availabilities = await _context
+                    .Availabilities.Where(a => a.EndDate.Date >= today)
+                    .ToListAsync();
 
                 var allDates = availabilities
                     .SelectMany(a =>
@@ -32,6 +35,7 @@ namespace RukuServiceApi.Controllers
                             .Range(0, (a.EndDate - a.StartDate).Days + 1)
                             .Select(offset => a.StartDate.AddDays(offset).Date)
                     )
+                    .Where(d => d >= today)
                     .Distinct()
                     .OrderBy(d => d)
                     .ToList();
