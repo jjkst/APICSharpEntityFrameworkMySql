@@ -1,9 +1,27 @@
 services:
+  # Runs pending EF Core migrations, then exits
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: migrate
+    container_name: ruku_migrate
+    env_file: ./.env.docker
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+    networks:
+      - ruku-network
+
   # .NET 8 API (Alpine)
   api:
     build:
       context: .
       dockerfile: Dockerfile
+      target: api
     container_name: ruku_api
     restart: unless-stopped
     env_file: ./.env.docker
@@ -12,6 +30,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     mem_limit: 200m
     volumes:
       - ./RukuServiceApi/logs:/app/logs
