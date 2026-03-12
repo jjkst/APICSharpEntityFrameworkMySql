@@ -1,0 +1,11 @@
+.git
+.gitignore
+.vs
+.vscode
+*.md
+**/bin/
+**/obj/
+docker-compose*.yml
+.env*
+nginx.conf
+mariadb/
