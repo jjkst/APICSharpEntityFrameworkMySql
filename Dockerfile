@@ -1,48 +1,26 @@
-# Use the official .NET 8 runtime as the base image
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-WORKDIR /app
-EXPOSE 80
-EXPOSE 443
-
-# Use the .NET 8 SDK for building
+# Stage 1: Build the application
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-COPY ["RukuServiceApi/RukuServiceApi.csproj", "RukuServiceApi/"]
+
+# Copy all .csproj files and restore dependencies as a separate layer to leverage Docker's build cache.
+COPY RukuServiceApi/*.csproj ./RukuServiceApi/
+COPY RukuServiceApi.Tests/*.csproj ./RukuServiceApi.Tests/
+COPY MigrateTool/*.csproj ./MigrateTool/
 RUN dotnet restore "RukuServiceApi/RukuServiceApi.csproj"
+
+# Copy the rest of the source code
 COPY . .
+
+# Publish the application for release, excluding the test project
 WORKDIR "/src/RukuServiceApi"
-RUN dotnet build "RukuServiceApi.csproj" -c Release -o /app/build
+RUN dotnet publish "RukuServiceApi.csproj" -c Release -o /app/publish --no-restore
 
-# Publish the application
-FROM build AS publish
-RUN dotnet publish "RukuServiceApi.csproj" -c Release -o /app/publish /p:UseAppHost=false
-
-# Create the final runtime image
-FROM base AS final
+# Stage 2: Create the final, smaller runtime image
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
-COPY --from=publish /app/publish .
+COPY --from=build /app/publish .
 
-# Create log directory
-RUN mkdir -p /var/log/ruku-service-api
-
-# Set environment variables
-ENV ASPNETCORE_ENVIRONMENT=Production
-ENV ASPNETCORE_URLS=http://+:80
-
-# Environment variables for configuration (can be overridden at runtime)
-ENV CONNECTIONSTRING=""
-ENV JWT_SECRET_KEY=""
-ENV JWT_ISSUER="RukuServiceApi"
-ENV JWT_AUDIENCE="RukuServiceApiUsers"
-ENV JWT_EXPIRATION_MINUTES="60"
-ENV SMTP_SERVER=""
-ENV SMTP_PORT="587"
-ENV SMTP_USERNAME=""
-ENV SMTP_PASSWORD=""
-ENV ENABLE_SSL="true"
-ENV ALLOWED_HOSTS="*"
-
-# Create uploads directory
-RUN mkdir -p /app/uploads
+# Expose port 80 for the Kestrel web server inside the container
+EXPOSE 80
 
 ENTRYPOINT ["dotnet", "RukuServiceApi.dll"]

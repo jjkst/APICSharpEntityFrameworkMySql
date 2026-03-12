@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  # API Service (ASP.NET Core)
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile # Assumes Dockerfile is in the root
+    container_name: ruku_api
+    restart: unless-stopped
+    env_file: ./.env.docker
+    depends_on:
+      db:
+        condition: service_healthy # Waits for the DB to be ready before starting
+    volumes:
+      - ./RukuServiceApi/logs:/app/logs
+      - ./RukuServiceApi/uploads:/app/uploads
+    networks:
+      - ruku-network
+
+  # Database Service (MySQL)
+  db:
+    image: mysql:8.0
+    container_name: ruku_db
+    restart: unless-stopped
+    env_file: ./.env.docker # Loads MYSQL_ROOT_PASSWORD and MYSQL_DATABASE
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ruku-network
+
+  # Frontend Service (Angular app served by Nginx)
+  frontend:
+    build:
+      context: ../jk-portfolio
+      dockerfile: Dockerfile
+    container_name: ruku_frontend
+    restart: unless-stopped
+    networks:
+      - ruku-network
+
+  # Reverse Proxy (Nginx) - The public entry point for your application
+  nginx:
+    image: nginx:latest
+    container_name: ruku_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      # Volumes for Let's Encrypt certificates
+      - certbot-conf:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+    depends_on:
+      - api
+      - frontend
+    networks:
+      - ruku-network
+
+volumes:
+  mysql-data:
+  certbot-conf:
+  certbot-www:
+
+networks:
+  ruku-network:
+    driver: bridge
