@@ -1,518 +1,1160 @@
-# 🚀 RukuServiceApi
+# RukuServiceApi
 
-A robust, secure, and scalable ASP.NET Core Web API for service management with comprehensive authentication, authorization, monitoring, and production-ready features.
+RESTful API backend to manage services, availability, scheduling, authentication, file uploads, and system monitoring.
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [Overview](#overview)
-- [Features](#features)
 - [Architecture](#architecture)
-- [Getting Started](#getting-started)
-- [API Documentation](#api-documentation)
+- [API Routes](#api-routes)
+- [Running Locally](#running-locally)
+- [Running with Docker](#running-with-docker)
+- [Testing](#testing)
+- [Database Management](#database-management)
 - [Security](#security)
 - [Monitoring & Health Checks](#monitoring--health-checks)
-- [Database Management](#database-management)
-- [Deployment](#deployment)
-- [Contributing](#contributing)
-- [License](#license)
 
-## 🎯 Overview
+## Architecture
 
-RukuServiceApi is a comprehensive service management backend API built with ASP.NET Core 8.0, designed to handle service management, user authentication, file uploads, and more. The API follows enterprise-grade patterns and includes production-ready features like health checks, structured logging, input validation, and security best practices.
+### Tech Stack
 
-### Key Capabilities
-- **Service Management** - Create, read, update, and delete services with pricing plans
-- **User Authentication** - JWT-based authentication with role-based authorization
-- **File Upload** - Secure file upload with validation and security measures
-- **Email Integration** - Contact form handling with SMTP integration
-- **Health Monitoring** - Comprehensive health checks and system monitoring
-- **Database Management** - Entity Framework migrations and data seeding
-
-## ✨ Features
-
-### 🔐 Security Features
-- **JWT Authentication** - Secure token-based authentication
-- **Role-based Authorization** - Admin, Owner, and Subscriber roles
-- **Input Validation** - Comprehensive validation using FluentValidation
-- **Secure File Upload** - File type validation, size limits, and path security
-- **Security Headers** - Protection against common web vulnerabilities
-- **Environment-based Configuration** - Secure secrets management
-
-### 📊 Monitoring & Observability
-- **Health Checks** - Database, email service, file system, and memory monitoring
-- **Structured Logging** - Serilog with file and console output
-- **Request/Response Logging** - Full request tracking with correlation IDs
-- **Performance Metrics** - System information and performance monitoring
-- **Error Handling** - Global exception handling with consistent responses
-
-### 🗄️ Database Features
-- **Entity Framework Core** - Modern ORM with MySQL support
-- **Database Migrations** - Version-controlled schema management
-- **Data Seeding** - Automatic initial data population
-- **Connection Pooling** - Optimized database connections
-
-### 🚀 Production Features
-- **Docker Support** - Containerized deployment ready
-- **Environment Configuration** - Development, staging, and production configs
-- **CORS Configuration** - Proper cross-origin resource sharing
-- **API Documentation** - Swagger/OpenAPI documentation
-- **Migration Scripts** - Automated database management
-
-## 🏗️ Architecture
+| Layer | Technology |
+|-------|-----------|
+| Framework | ASP.NET Core 8.0 |
+| ORM | Entity Framework Core 8.0 + Pomelo MySQL |
+| Database | MariaDB 10.11 (MySQL-compatible) |
+| Auth | JWT Bearer with role-based policies |
+| Validation | FluentValidation |
+| Logging | Serilog (console + file, JSON structured) |
+| Docs | Swagger/OpenAPI (dev only) |
+| Reverse Proxy | Nginx (serves Angular static files + proxies API) |
+| Containerization | Docker multi-stage builds + docker-compose |
 
 ### Project Structure
+
 ```
-RukuServiceApi/
-├── Controllers/           # API Controllers
-│   ├── AuthController.cs         # Authentication endpoints
-│   ├── ServicesController.cs     # Service management
-│   ├── UsersController.cs        # User management
-│   ├── EmailController.cs        # Email functionality
-│   ├── UploadImageController.cs  # File upload
-│   ├── PublicServicesController.cs # Public service access
-│   ├── MonitoringController.cs   # System monitoring
-│   └── BaseController.cs         # Base controller with CRUD operations
-├── Models/               # Data Models
-│   ├── User.cs                   # User entity
-│   ├── Service.cs                # Service entity
-│   ├── RukuService.cs           # Ruku service entity
-│   ├── Availability.cs          # Availability entity
-│   ├── Schedule.cs              # Schedule entity
-│   ├── Contact.cs               # Contact entity
-│   ├── EmailSettings.cs         # Email configuration
-│   ├── JwtSettings.cs          # JWT configuration
-│   ├── FileUploadSettings.cs   # File upload configuration
-│   └── ValidationModels.cs     # Request/response DTOs
-├── Services/             # Business Logic Services
-│   ├── AuthService.cs           # Authentication service
-│   ├── FileUploadService.cs     # File upload service
-│   └── DatabaseSeeder.cs        # Database seeding service
-├── Middleware/           # Custom Middleware
-│   ├── GlobalExceptionMiddleware.cs    # Global error handling
-│   ├── ValidationMiddleware.cs         # Request validation
-│   ├── RequestLoggingMiddleware.cs     # Request logging
-│   └── SecurityHeadersMiddleware.cs   # Security headers
-├── HealthChecks/         # Health Check Implementations
-│   └── CustomHealthChecks.cs    # Custom health checks
-├── Validators/           # Input Validation
-│   └── Validators.cs            # FluentValidation validators
-├── Context/              # Database Context
-│   └── ApplicationDbContext.cs # EF Core context
-└── Program.cs            # Application startup
+APICSharpEntityFrameworkMySql/
+├── RukuServiceApi/                     # Main API project
+│   ├── Controllers/                    # API controllers
+│   │   ├── BaseController.cs           # Generic CRUD (GetAll, GetById, Create, Update, Delete)
+│   │   ├── AuthController.cs           # Login & registration
+│   │   ├── ServicesController.cs       # Service management (Admin/Owner)
+│   │   ├── PublicServicesController.cs  # Public read-only service access
+│   │   ├── AvailabilitiesController.cs # Availability CRUD + date/timeslot queries
+│   │   ├── SchedulesController.cs      # Schedule CRUD
+│   │   ├── UsersController.cs          # User management + role updates
+│   │   ├── EmailController.cs          # Contact form + email settings
+│   │   ├── UploadImageController.cs    # File uploads (10MB max)
+│   │   └── MonitoringController.cs     # System info, metrics, logs
+│   ├── Models/                         # Entities + DTOs
+│   │   ├── User.cs, Service.cs, Availability.cs, Schedule.cs, Contact.cs
+│   │   ├── ValidationModels.cs         # Request/response DTOs
+│   │   ├── AuthorizationPolicies.cs    # Policy constants
+│   │   ├── ErrorResponse.cs            # Consistent error format
+│   │   └── JwtSettings.cs, EmailSettings.cs, FileUploadSettings.cs
+│   ├── Services/                       # Business logic
+│   │   ├── AuthService.cs              # JWT token generation & validation
+│   │   ├── FileUploadService.cs        # File handling with security checks
+│   │   └── DatabaseSeeder.cs           # Dev data seeding
+│   ├── Middleware/                      # HTTP pipeline middleware
+│   │   ├── SecurityHeadersMiddleware.cs
+│   │   ├── RequestLoggingMiddleware.cs
+│   │   ├── GlobalExceptionMiddleware.cs
+│   │   └── ValidationMiddleware.cs
+│   ├── HealthChecks/
+│   │   └── CustomHealthChecks.cs       # DB, email, filesystem, memory checks
+│   ├── Validators/
+│   │   └── Validators.cs               # FluentValidation rules
+│   ├── Context/
+│   │   └── ApplicationDbContext.cs      # EF Core DbContext
+│   └── Program.cs                       # App startup & configuration
+├── RukuServiceApi.IntegrationTests/     # Integration tests (MSTest, hits live API)
+├── RukuServiceApi.UnitTests/            # Unit tests (MSTest, mocked dependencies)
+├── MigrateTool/                         # CLI migration tool
+├── Dockerfile                           # Multi-stage: build -> migrate -> api
+├── docker-compose.yml                   # Full stack: migrate, api, db, web (nginx)
+├── nginx.conf                           # Reverse proxy + Angular static files
+├── mariadb/my.cnf                       # MariaDB custom config
+├── env.template                         # Local env vars template
+└── docker.env.template                  # Docker env vars template
 ```
 
-### Technology Stack
-- **.NET 8.0** - Latest .NET framework
-- **ASP.NET Core Web API** - RESTful API framework
-- **Entity Framework Core** - Object-relational mapping
-- **MySQL** - Database with Pomelo.EntityFrameworkCore.MySql
-- **JWT Bearer Authentication** - Token-based authentication
-- **FluentValidation** - Input validation
-- **Serilog** - Structured logging
-- **Swagger/OpenAPI** - API documentation
-- **Docker** - Containerization
+### Request Flow
 
-## 🚀 Getting Started
+```
+Client Request
+  → Nginx (reverse proxy, rate limiting: 10r/s with burst=20)
+    → SecurityHeadersMiddleware (X-Frame-Options, HSTS, etc.)
+      → RequestLoggingMiddleware (correlation IDs, duration tracking)
+        → GlobalExceptionMiddleware (consistent ErrorResponse format)
+          → ValidationMiddleware (FluentValidation)
+            → Authentication (JWT Bearer)
+              → Authorization (role-based policies)
+                → Controller Action
+                  → Entity Framework Core → MariaDB
+```
+
+### Authorization Roles
+
+| Policy | Roles | Used By |
+|--------|-------|---------|
+| `AdminOnly` | Admin | Monitoring, email settings, user role management |
+| `AdminOrOwner` | Admin, Owner | Services CRUD, file uploads |
+| `AuthenticatedUser` | Any authenticated user | Email send, user read |
+
+## API Routes
+
+> **Base URL:** `http://localhost:5002` (local development)
+>
+> All authenticated endpoints require a JWT token in the `Authorization` header:
+> ```
+> Authorization: Bearer <token>
+> ```
+
+---
+
+### Authentication (`/api/auth`) — Public
+
+#### POST `/api/auth/login`
+
+Login with email and uid to receive a JWT token.
+
+```bash
+curl -X POST http://localhost:5002/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "admin@rukuit.com",
+    "uid": "admin-uid-12345"
+  }'
+```
+
+**Response (200):**
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIs...",
+  "user": {
+    "id": 1,
+    "email": "admin@rukuit.com",
+    "displayName": "Admin User",
+    "role": "Admin",
+    "emailVerified": true
+  }
+}
+```
+
+| Status | Meaning |
+|--------|---------|
+| 200 | Success — token + user returned |
+| 400 | Email and UID are required |
+| 401 | Invalid credentials (user not found or UID mismatch) |
+
+#### POST `/api/auth/register`
+
+Register a new user account.
+
+```bash
+curl -X POST http://localhost:5002/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "newuser@example.com",
+    "uid": "firebase-uid-abc123",
+    "displayName": "Jane Doe",
+    "emailVerified": true,
+    "provider": "Google"
+  }'
+```
+
+**Response (200):**
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIs...",
+  "user": {
+    "id": 3,
+    "email": "newuser@example.com",
+    "displayName": "Jane Doe",
+    "role": "Subscriber",
+    "emailVerified": true
+  }
+}
+```
+
+| Status | Meaning |
+|--------|---------|
+| 200 | Success — new user created with Subscriber role |
+| 409 | User already exists (duplicate email or UID) |
+
+**Provider values:** `Google`, `Facebook`, `Apple`
+
+---
+
+### Public Services (`/api/publicservices`) — No Auth Required
+
+#### GET `/api/publicservices`
+
+List all services (public, no authentication needed).
+
+```bash
+curl http://localhost:5002/api/publicservices
+```
+
+**Response (200):**
+```json
+[
+  {
+    "id": 1,
+    "title": "Build Your Website",
+    "fileName": "web-dev.png",
+    "description": "Full-stack web development service...",
+    "features": ["Responsive Design", "SEO Optimization"],
+    "pricingPlans": [
+      {
+        "name": "Basic",
+        "initialSetupFee": "$500.00",
+        "monthlySubscription": "$50.00",
+        "features": ["5 pages", "Basic support"]
+      }
+    ]
+  }
+]
+```
+
+#### GET `/api/publicservices/{id}`
+
+Get a single service by ID.
+
+```bash
+curl http://localhost:5002/api/publicservices/1
+```
+
+**Response (200):** Single service object (same shape as above).
+
+| Status | Meaning |
+|--------|---------|
+| 200 | Success |
+| 404 | Service not found |
+
+---
+
+### Services (`/api/services`) — Admin/Owner
+
+All endpoints require `AdminOrOwner` authorization.
+
+#### GET `/api/services`
+
+```bash
+curl http://localhost:5002/api/services \
+  -H "Authorization: Bearer <token>"
+```
+
+**Response (200):** Array of service objects.
+
+#### GET `/api/services/{id}`
+
+```bash
+curl http://localhost:5002/api/services/1 \
+  -H "Authorization: Bearer <token>"
+```
+
+**Response (200):** Single service object. **404** if not found.
+
+#### POST `/api/services/create`
+
+Create a new service with validation.
+
+```bash
+curl -X POST http://localhost:5002/api/services/create \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "UI Automation Training",
+    "fileName": "ui-auto.png",
+    "description": "Comprehensive training on UI test automation frameworks and best practices.",
+    "features": ["Selenium WebDriver", "Cypress", "Playwright"],
+    "pricingPlans": [
+      {
+        "name": "Foundation",
+        "initialSetupFee": "$200.00",
+        "monthlySubscription": "$0",
+        "features": ["2-day workshop", "Course materials"]
+      },
+      {
+        "name": "Enterprise",
+        "initialSetupFee": "$1500.00",
+        "monthlySubscription": "$100.00",
+        "features": ["On-site training", "Ongoing mentorship", "Custom curriculum"]
+      }
+    ]
+  }'
+```
+
+**Response (201):** Created service object with assigned `id`.
+
+| Status | Meaning |
+|--------|---------|
+| 201 | Created |
+| 409 | Duplicate title or description |
+
+**Validation rules:**
+- `title`: required, 3–100 chars, alphanumeric/spaces/hyphens/underscores only
+- `description`: required, 10–1000 chars
+- `fileName`: optional, max 255 chars, alphanumeric/dots/hyphens/underscores only
+- `features[]`: each max 200 chars
+- `pricingPlans[].name`: required, 3–50 chars
+- `pricingPlans[].initialSetupFee`: required, format `$123.00` or `123.00`
+- `pricingPlans[].monthlySubscription`: required, same format
+
+#### PUT `/api/services/update/{id}`
+
+Update an existing service.
+
+```bash
+curl -X PUT http://localhost:5002/api/services/update/1 \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Build Your Website Updated",
+    "fileName": "web-dev-v2.png",
+    "description": "Updated full-stack web development service with modern frameworks.",
+    "features": ["React", "Angular", "Vue"],
+    "pricingPlans": [
+      {
+        "name": "Standard",
+        "initialSetupFee": "$750.00",
+        "monthlySubscription": "$75.00",
+        "features": ["10 pages", "Priority support"]
+      }
+    ]
+  }'
+```
+
+**Response (200):** Updated service object.
+
+| Status | Meaning |
+|--------|---------|
+| 200 | Updated |
+| 404 | Service not found |
+| 409 | Duplicate title or description (excluding current service) |
+
+#### DELETE `/api/services/{id}`
+
+```bash
+curl -X DELETE http://localhost:5002/api/services/1 \
+  -H "Authorization: Bearer <token>"
+```
+
+**Response:** 204 No Content. **404** if not found.
+
+---
+
+### Availabilities (`/api/availabilities`) — Public Read, Auth for Write
+
+#### GET `/api/availabilities`
+
+```bash
+curl http://localhost:5002/api/availabilities
+```
+
+**Response (200):**
+```json
+[
+  {
+    "id": 1,
+    "startDate": "2026-04-01T00:00:00",
+    "endDate": "2026-04-30T00:00:00",
+    "services": ["Build Your Website", "UI Automation Training"],
+    "timeslots": ["09:00 AM - 10:00 AM", "10:00 AM - 11:00 AM", "02:00 PM - 03:00 PM"]
+  }
+]
+```
+
+#### GET `/api/availabilities/{id}`
+
+```bash
+curl http://localhost:5002/api/availabilities/1
+```
+
+**Response (200):** Single availability object. **404** if not found.
+
+#### POST `/api/availabilities`
+
+Create a new availability window. Dates must be in the future and cannot overlap existing availabilities.
+
+```bash
+curl -X POST http://localhost:5002/api/availabilities \
+  -H "Content-Type: application/json" \
+  -d '{
+    "startDate": "2026-05-01",
+    "endDate": "2026-05-31",
+    "services": ["Build Your Website", "Website Maintenance"],
+    "timeslots": ["09:00 AM - 10:00 AM", "11:00 AM - 12:00 PM"]
+  }'
+```
+
+**Response (201):** Created availability object with `id`.
+
+| Status | Meaning |
+|--------|---------|
+| 201 | Created |
+| 400 | StartDate must be in the future / EndDate must be after StartDate |
+| 409 | Date range overlaps an existing availability |
+
+#### PUT `/api/availabilities/{id}`
+
+```bash
+curl -X PUT http://localhost:5002/api/availabilities/1 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "startDate": "2026-05-01",
+    "endDate": "2026-06-15",
+    "services": ["Build Your Website"],
+    "timeslots": ["09:00 AM - 10:00 AM"]
+  }'
+```
+
+**Response (200):** Updated availability. Same validation as POST.
+
+#### DELETE `/api/availabilities/{id}`
+
+```bash
+curl -X DELETE http://localhost:5002/api/availabilities/1
+```
+
+**Response:** 204 No Content. **404** if not found.
+
+#### GET `/api/availabilities/dates`
+
+Get all unique dates with availability (today and future only).
+
+```bash
+curl http://localhost:5002/api/availabilities/dates
+```
+
+**Response (200):**
+```json
+["2026-04-01", "2026-04-02", "2026-04-03"]
+```
+
+#### GET `/api/availabilities/services?date={date}`
+
+Get services available on a specific date.
+
+```bash
+curl "http://localhost:5002/api/availabilities/services?date=2026-04-15"
+```
+
+**Response (200):**
+```json
+["Build Your Website", "UI Automation Training"]
+```
+
+#### POST `/api/availabilities/timeslots`
+
+Get available timeslots for a specific date and set of services.
+
+```bash
+curl -X POST http://localhost:5002/api/availabilities/timeslots \
+  -H "Content-Type: application/json" \
+  -d '{
+    "date": "2026-04-15",
+    "services": ["Build Your Website"]
+  }'
+```
+
+**Response (200):**
+```json
+["09:00 AM - 10:00 AM", "10:00 AM - 11:00 AM", "02:00 PM - 03:00 PM"]
+```
+
+| Status | Meaning |
+|--------|---------|
+| 200 | Success |
+| 404 | No availabilities for the given date or services |
+
+---
+
+### Schedules (`/api/schedules`) — Public
+
+#### GET `/api/schedules`
+
+```bash
+curl http://localhost:5002/api/schedules
+```
+
+**Response (200):**
+```json
+[
+  {
+    "id": 1,
+    "contactName": "John Doe",
+    "selectedDate": "2026-04-15T00:00:00",
+    "services": ["Build Your Website"],
+    "timeslots": ["09:00 AM - 10:00 AM"],
+    "note": "Interested in React-based solution",
+    "uid": "firebase-uid-abc123"
+  }
+]
+```
+
+#### GET `/api/schedules/{id}`
+
+```bash
+curl http://localhost:5002/api/schedules/1
+```
+
+**Response (200):** Single schedule object. **404** if not found.
+
+#### POST `/api/schedules`
+
+Book a new appointment.
+
+```bash
+curl -X POST http://localhost:5002/api/schedules \
+  -H "Content-Type: application/json" \
+  -d '{
+    "contactName": "Jane Smith",
+    "selectedDate": "2026-04-20",
+    "services": ["Build Your Website", "Website Maintenance"],
+    "timeslots": ["10:00 AM - 11:00 AM"],
+    "note": "Need e-commerce features",
+    "uid": "firebase-uid-xyz789"
+  }'
+```
+
+**Response (201):** Created schedule object with `id`.
+
+#### PUT `/api/schedules/{id}`
+
+```bash
+curl -X PUT http://localhost:5002/api/schedules/1 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "contactName": "Jane Smith",
+    "selectedDate": "2026-04-25",
+    "services": ["Build Your Website"],
+    "timeslots": ["02:00 PM - 03:00 PM"],
+    "note": "Rescheduled to later date"
+  }'
+```
+
+**Response (200):** Updated schedule object. **404** if not found.
+
+#### DELETE `/api/schedules/{id}`
+
+```bash
+curl -X DELETE http://localhost:5002/api/schedules/1
+```
+
+**Response:** 204 No Content. **404** if not found.
+
+---
+
+### Users (`/api/users`) — Authenticated
+
+All endpoints require a valid JWT token.
+
+#### GET `/api/users`
+
+```bash
+curl http://localhost:5002/api/users \
+  -H "Authorization: Bearer <token>"
+```
+
+**Response (200):**
+```json
+[
+  {
+    "id": 1,
+    "displayName": "Admin User",
+    "email": "admin@rukuit.com",
+    "emailVerified": true,
+    "uid": "admin-uid-12345",
+    "role": "Admin",
+    "provider": "Google"
+  }
+]
+```
+
+#### GET `/api/users/{id}`
+
+```bash
+curl http://localhost:5002/api/users/1 \
+  -H "Authorization: Bearer <token>"
+```
+
+**Response (200):** Single user object. **404** if not found.
+
+#### PUT `/api/users/{id}/role` — AdminOnly
+
+Update a user's role. Only Admin users can perform this action.
+
+```bash
+curl -X PUT http://localhost:5002/api/users/2/role \
+  -H "Authorization: Bearer <admin-token>" \
+  -H "Content-Type: application/json" \
+  -d '"Owner"'
+```
+
+**Response (200):** Updated user object with new role.
+
+| Status | Meaning |
+|--------|---------|
+| 200 | Role updated |
+| 400 | Invalid role value |
+| 404 | User not found |
+
+**Valid roles:** `Admin`, `Owner`, `Subscriber` (case-insensitive)
+
+#### DELETE `/api/users/{id}`
+
+```bash
+curl -X DELETE http://localhost:5002/api/users/3 \
+  -H "Authorization: Bearer <token>"
+```
+
+**Response:** 204 No Content. **404** if not found.
+
+---
+
+### Email (`/api/email`) — Authenticated
+
+#### POST `/api/email/send`
+
+Send a contact form email.
+
+```bash
+curl -X POST http://localhost:5002/api/email/send \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john.doe@example.com",
+    "phoneNumber": "+1234567890",
+    "questions": "I am interested in your web development services. Can you provide a quote for an e-commerce site?"
+  }'
+```
+
+**Response (200):**
+```json
+{ "message": "Email sent successfully" }
+```
+
+| Status | Meaning |
+|--------|---------|
+| 200 | Email sent |
+| 400 | Failed to send (SMTP error) or validation failure |
+
+**Validation rules:**
+- `firstName`: required, 2–50 chars, letters/spaces only
+- `lastName`: required, 2–50 chars, letters/spaces only
+- `email`: required, valid email format
+- `phoneNumber`: optional, international format (e.g. `+1234567890`)
+- `questions`: required, 10–1000 chars
+
+#### GET `/api/email/settings` — AdminOnly
+
+Get current SMTP configuration (credentials excluded).
+
+```bash
+curl http://localhost:5002/api/email/settings \
+  -H "Authorization: Bearer <admin-token>"
+```
+
+**Response (200):**
+```json
+{
+  "smtpServer": "smtp.gmail.com",
+  "smtpPort": 587,
+  "enableSsl": true
+}
+```
+
+---
+
+### File Upload (`/api/uploadimage`) — Admin/Owner
+
+#### POST `/api/uploadimage`
+
+Upload an image or PDF file using multipart form data.
+
+```bash
+curl -X POST http://localhost:5002/api/uploadimage \
+  -H "Authorization: Bearer <token>" \
+  -F "file=@/path/to/image.jpg" \
+  -F "folder=services"
+```
+
+**Response (200):**
+```json
+{
+  "filePath": "uploads/services/1710345600_aB3xYz.jpg",
+  "fileName": "1710345600_aB3xYz.jpg",
+  "size": 245678
+}
+```
+
+| Status | Meaning |
+|--------|---------|
+| 200 | File uploaded |
+| 400 | Validation failed (size, type, suspicious filename) |
+
+**Constraints:**
+- Max file size: 10 MB
+- Allowed extensions: `.jpg`, `.jpeg`, `.png`, `.gif`, `.pdf`
+- Allowed MIME types: `image/jpeg`, `image/png`, `image/gif`, `application/pdf`
+- Filenames with path traversal (`..`, `/`, `\`) or script keywords are rejected
+
+---
+
+### Monitoring (`/api/monitoring`) — AdminOnly
+
+#### GET `/api/monitoring/system-info`
+
+```bash
+curl http://localhost:5002/api/monitoring/system-info \
+  -H "Authorization: Bearer <admin-token>"
+```
+
+**Response (200):**
+```json
+{
+  "application": {
+    "name": "RukuServiceApi",
+    "version": "1.0.0",
+    "startTime": "2026-03-13T08:00:00Z",
+    "uptime": "04:30:15"
+  },
+  "system": {
+    "machineName": "PROD-SERVER",
+    "osVersion": "Unix 5.15.0",
+    "processorCount": 4,
+    "workingSet": 104857600,
+    "privateMemorySize": 134217728,
+    "virtualMemorySize": 268435456
+  },
+  "environment": {
+    "environmentName": "Production",
+    "frameworkVersion": ".NET 8.0.0",
+    "is64BitProcess": true,
+    "is64BitOperatingSystem": true
+  },
+  "timestamp": "2026-03-13T12:30:15Z"
+}
+```
+
+#### GET `/api/monitoring/performance`
+
+```bash
+curl http://localhost:5002/api/monitoring/performance \
+  -H "Authorization: Bearer <admin-token>"
+```
+
+**Response (200):**
+```json
+{
+  "memory": {
+    "workingSetMB": 100,
+    "privateMemoryMB": 128,
+    "virtualMemoryMB": 256,
+    "gcMemoryMB": 45,
+    "gen0Collections": 12,
+    "gen1Collections": 5,
+    "gen2Collections": 1
+  },
+  "cpu": {
+    "totalProcessorTime": 15234.5,
+    "userProcessorTime": 12000.3,
+    "privilegedProcessorTime": 3234.2
+  },
+  "threads": {
+    "threadCount": 24,
+    "handleCount": 150
+  },
+  "timestamp": "2026-03-13T12:30:15Z"
+}
+```
+
+#### GET `/api/monitoring/logs?count={n}`
+
+Get the most recent log lines. Default count is 50.
+
+```bash
+curl "http://localhost:5002/api/monitoring/logs?count=20" \
+  -H "Authorization: Bearer <admin-token>"
+```
+
+**Response (200):**
+```json
+{
+  "logFile": "log-20260313.txt",
+  "lineCount": 20,
+  "logs": [
+    "2026-03-13 12:30:00 [INF] Request started: GET /api/services ...",
+    "2026-03-13 12:30:01 [INF] Request completed: GET /api/services - Status: 200 ..."
+  ],
+  "timestamp": "2026-03-13T12:30:15Z"
+}
+```
+
+| Status | Meaning |
+|--------|---------|
+| 200 | Success |
+| 404 | No log files found |
+
+#### POST `/api/monitoring/gc`
+
+Force garbage collection and report freed memory.
+
+```bash
+curl -X POST http://localhost:5002/api/monitoring/gc \
+  -H "Authorization: Bearer <admin-token>"
+```
+
+**Response (200):**
+```json
+{
+  "beforeMemoryMB": 150,
+  "afterMemoryMB": 95,
+  "freedMemoryMB": 55,
+  "timestamp": "2026-03-13T12:30:15Z"
+}
+```
+
+---
+
+### Health Checks — No Auth Required
+
+#### GET `/health`
+
+Full health check report covering database, email, filesystem, memory, and EF context.
+
+```bash
+curl http://localhost:5002/health
+```
+
+**Response (200):**
+```json
+{
+  "status": "Healthy",
+  "results": {
+    "database": { "status": "Healthy", "description": "Database is accessible" },
+    "email_service": { "status": "Healthy", "description": "Email service is configured" },
+    "file_system": { "status": "Healthy", "description": "File system is accessible" },
+    "memory": { "status": "Healthy", "description": "Memory usage is normal: 95MB" },
+    "db_context": { "status": "Healthy" }
+  }
+}
+```
+
+#### GET `/health/ready`
+
+Readiness probe for orchestrators (Kubernetes, Docker health checks).
+
+```bash
+curl http://localhost:5002/health/ready
+```
+
+**Response:** 200 if ready, 503 if not.
+
+#### GET `/health/live`
+
+Liveness probe — always returns healthy if the process is running.
+
+```bash
+curl http://localhost:5002/health/live
+```
+
+**Response:** 200 if alive.
+
+---
+
+### Error Response Format
+
+All errors return a consistent JSON structure:
+
+```json
+{
+  "message": "Description of the error",
+  "details": "Stack trace or additional info (development only)",
+  "statusCode": 400,
+  "correlationId": "0HN4ABCDEF:00000001",
+  "timestamp": "2026-03-13T12:30:15Z",
+  "path": "/api/services/create"
+}
+```
+
+| Exception Type | HTTP Status |
+|----------------|-------------|
+| `UnauthorizedAccessException` | 401 |
+| `ArgumentException` | 400 |
+| `InvalidOperationException` | 400 |
+| `FileNotFoundException` | 404 |
+| `TimeoutException` | 408 |
+| All others | 500 |
+
+## Running Locally
 
 ### Prerequisites
+
 - .NET 8.0 SDK
-- MySQL 8.0+
-- Docker (optional, for containerized deployment)
+- MySQL 8.0+ or MariaDB 10.11+
 
-### Installation
+### Setup
 
-1. **Clone the repository**
+1. **Clone and restore**
    ```bash
    git clone https://github.com/jjkst/RukuServiceApi.git
    cd RukuServiceApi
-   ```
-
-2. **Install dependencies**
-   ```bash
    dotnet restore
    ```
 
-3. **Configure environment variables**
+2. **Configure environment variables**
    ```bash
    cp env.template .env.local
-   cp docker.env.template .env.docker   # optional: for Docker Compose
    ```
-   - Update the files with your own values (never commit them).
-   - **Important**: `ALLOWED_HOSTS` must use semicolons (`;`) to separate hosts, not commas.
-   - Export the variables: `export $(grep -v '^#' .env.local | xargs)`.
-   - For the first run, create your development database in MySQL (`CREATE DATABASE RukuITServicesTest CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;`).
+   Edit `.env.local` with your values:
+   - `CONNECTIONSTRING` - MySQL/MariaDB connection string
+   - `JWT_SECRET_KEY` - Minimum 32 characters
+   - `SMTP_*` - Email server settings
+   - `ADMIN_EMAIL`, `ADMIN_UID` - Admin user credentials (seeded on startup)
+   - `ALLOWED_HOSTS` - Semicolon-separated (`;`), not commas
 
-4. **Run database migrations**
+3. **Create the database**
+   ```sql
+   CREATE DATABASE RukuITServicesTest CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   ```
+
+4. **Run migrations**
    ```bash
-   # Make migration tool executable (one-time setup)
-   chmod +x migrate
-   
-   # Create initial migration
-   ./migrate create InitialCreate
-   
-   # Update database
    ./migrate update Development
-
-   # The database already has tables, likely from a previous migration or manual SQL. Use the reset command to drop and recreate it:
+   # Or reset from scratch:
    ./migrate reset Development
    ```
-5. **Run the application**
+
+5. **Run the API**
    ```bash
    dotnet run --project RukuServiceApi
    ```
 
-6. **Access the API**
-   - API: `http://localhost:5002`
-   - Swagger UI: `http://localhost:5002/swagger`
-   - Health Check: `http://localhost:5002/health`
+6. **Access**
+   - API: http://localhost:5002
+   - Swagger UI: http://localhost:5002/swagger (dev only)
+   - Health: http://localhost:5002/health
 
-### Run with Docker
+In development, the database is automatically seeded with an admin user (`admin@rukuit.com`), owner user, and sample services.
 
-1. **Prepare environment files**
+## Running with Docker
+
+The project uses a multi-stage Dockerfile with three targets:
+- **build** - Compiles the API and creates an EF Core migration bundle
+- **migrate** - Runs pending migrations, then exits
+- **api** - Lightweight Alpine-based runtime (~100MB)
+
+### Docker Compose Stack
+
+The `docker-compose.yml` orchestrates four services:
+
+| Service | Container | Description |
+|---------|-----------|-------------|
+| `migrate` | `ruku_migrate` | Runs EF migrations on startup, then exits |
+| `api` | `ruku_api` | .NET 8 API (Alpine), 200MB memory limit |
+| `db` | `ruku_db` | MariaDB 10.11, 256MB memory limit |
+| `web` | `ruku_web` | Nginx: Angular static files + API reverse proxy |
+
+Startup order: `db` (healthy) → `migrate` (completes) → `api` → `web`
+
+### Quick Start
+
+1. **Configure environment**
    ```bash
-   cp env.template .env.local
    cp docker.env.template .env.docker
    ```
-   - Populate both files with your credentials. `.env.local` is used for local development; `.env.docker` is read by Docker Compose.
-   - **Important**: For Docker Compose, update `.env.docker`:
-     - **Development**: Set `CONNECTIONSTRING=Server=mysql-dev;Port=3306;Database=RukuITServicesTest;User=root;Password=dev-password;`
-     - **Production**: Set `CONNECTIONSTRING=Server=mysql;Port=3306;Database=RukuITServicesProd;User=root;Password=your-password;`
-   - `ALLOWED_HOSTS` must use semicolons (`;`) to separate hosts: `localhost;127.0.0.1;your-domain.com`
-   - Set `MYSQL_ROOT_PASSWORD` in `.env.docker` to match your connection string password.
+   Edit `.env.docker`:
+   - Set `CONNECTIONSTRING=Server=db;Port=3306;Database=RukuITServicesProd;User=root;Password=your-password;`
+   - Set `MYSQL_ROOT_PASSWORD` to match the password above
+   - Set `ALLOWED_HOSTS=yourdomain.com;www.yourdomain.com`
 
-2. **Run database migrations in Docker**
+2. **Build and run**
    ```bash
-   # Option 1: Run migrations inside the container (recommended)
-   docker-compose -f docker-compose.dev.yml up -d mysql-dev
-   docker-compose exec ruku-service-api-dev dotnet ef database update
-   
-   # Option 2: Run from host (requires connection string pointing to localhost:3307)
-   export CONNECTIONSTRING="Server=127.0.0.1;Port=3307;Database=RukuITServicesTest;User=root;Password=dev-password;"
-   ./migrate.sh update Development
+   docker compose up --build
+   ```
+   Migrations run automatically before the API starts.
+
+3. **Access**
+   - Web (Nginx): http://localhost (port 80)
+   - API is internal, proxied through Nginx at `/api/`
+
+4. **Stop**
+   ```bash
+   docker compose down        # Stop containers
+   docker compose down -v     # Stop + remove volumes (clean slate)
    ```
 
-3. **Bring up the full stack**
-   ```bash
-   docker-compose -f docker-compose.dev.yml up --build
-   ```
-   - The API waits for MySQL to be healthy before starting (healthcheck enabled).
-   - API is exposed on `http://localhost:5002`.
-   - MySQL runs on port `3307` (dev) or `3306` (prod) with credentials from `.env.docker`.
-   - Logs are stored in `./logs`, uploaded files in `./uploads` (both mounted as volumes).
+### SSL/HTTPS
 
-4. **Tear the stack down**
-   ```bash
-   # Stop containers
-   docker-compose -f docker-compose.dev.yml down
-   
-   # Stop and remove volumes (clean slate)
-   docker-compose -f docker-compose.dev.yml down -v
-   ```
+The `nginx.conf` includes a commented-out HTTPS server block. To enable:
 
-5. **Run just the API container (optional)**
-   ```bash
-   docker build -t ruku-service-api .
-   export $(grep -v '^#' .env.local | xargs)
-   docker run -p 5000:80 \
-     --env-file .env.local \
-     -v "$(pwd)/logs:/var/log/ruku-service-api" \
-     -v "$(pwd)/uploads:/app/uploads" \
-     ruku-service-api
-   ```
-   Point the container's `CONNECTIONSTRING` at an existing database or MySQL instance.
+1. Run Certbot for your domain
+2. Uncomment the HTTPS section in `nginx.conf`, replacing `your-domain.com`
+3. Restart: `docker compose restart web`
 
+Certificates are stored in the `certbot-conf` volume.
 
-#### Register User
-```http
-POST /api/auth/register
-Content-Type: application/json
+### Volumes
 
-{
-  "email": "user@example.com",
-  "uid": "unique-user-id",
-  "displayName": "John Doe",
-  "emailVerified": true,
-  "provider": "Google"
-}
-```
+| Volume | Mount | Purpose |
+|--------|-------|---------|
+| `mysql-data` | MariaDB data dir | Persistent database storage |
+| `certbot-conf` | `/etc/letsencrypt` | SSL certificates |
+| `certbot-www` | `/var/www/certbot` | ACME challenge files |
+| `./RukuServiceApi/logs` | `/app/logs` | Application logs |
+| `./RukuServiceApi/uploads` | `/app/uploads` | Uploaded files |
 
-#### Login User
-```http
-POST /api/auth/login
-Content-Type: application/json
-
-{
-  "email": "user@example.com",
-  "uid": "unique-user-id"
-}
-```
-
-### Service Management Endpoints
-
-#### Get All Services (Public)
-```http
-GET /api/publicservices
-```
-
-#### Create Service (Admin/Owner)
-```http
-POST /api/services
-Authorization: Bearer <jwt-token>
-Content-Type: application/json
-
-{
-  "title": "Web Development",
-  "description": "Professional web development services",
-  "features": ["Responsive Design", "SEO Optimization"],
-  "pricingPlans": [
-    {
-      "name": "Basic",
-      "initialSetupFee": "$500",
-      "monthlySubscription": "$200",
-      "features": ["Basic Website", "Mobile Responsive"]
-    }
-  ]
-}
-```
-
-#### Update Service (Admin/Owner)
-```http
-PUT /api/services/{id}
-Authorization: Bearer <jwt-token>
-Content-Type: application/json
-
-{
-  "title": "Updated Service Title",
-  "description": "Updated description"
-}
-```
-
-### User Management Endpoints
-
-#### Update User Role (Admin Only)
-```http
-PUT /api/users/{id}/role
-Authorization: Bearer <jwt-token>
-Content-Type: application/json
-
-"Admin"
-```
-
-### File Upload Endpoints
-
-#### Upload File (Admin/Owner)
-```http
-POST /api/uploadimage
-Authorization: Bearer <jwt-token>
-Content-Type: multipart/form-data
-
-file: <file>
-folder: "images"
-```
-
-### Health Check Endpoints
-
-#### Complete Health Check
-```http
-GET /health
-```
-
-#### Readiness Probe
-```http
-GET /health/ready
-```
-
-#### Liveness Probe
-```http
-GET /health/live
-```
-
-### Monitoring Endpoints (Admin Only)
-
-#### System Information
-```http
-GET /api/monitoring/system-info
-Authorization: Bearer <jwt-token>
-```
-
-#### Performance Metrics
-```http
-GET /api/monitoring/performance
-Authorization: Bearer <jwt-token>
-```
-
-## 🔒 Security
-
-### Authentication & Authorization
-- **JWT Tokens** - Secure token-based authentication
-- **Role-based Access** - Admin, Owner, and Subscriber roles
-- **Protected Endpoints** - Sensitive operations require authentication
-- **Token Validation** - Comprehensive JWT validation
-
-### Input Validation
-- **FluentValidation** - Server-side validation
-- **Data Annotations** - Model validation
-- **Sanitization** - Input sanitization and validation
-- **File Upload Security** - File type and size validation
-
-### Security Headers
-- **X-Content-Type-Options** - Prevent MIME type sniffing
-- **X-Frame-Options** - Prevent clickjacking
-- **X-XSS-Protection** - XSS protection
-- **Referrer-Policy** - Control referrer information
-- **Strict-Transport-Security** - HTTPS enforcement
-
-### Environment Security
-- **Secrets Management** - All sensitive data stored in environment variables
-- **Configuration Separation** - Environment-specific configurations with secure defaults
-- **No Hardcoded Secrets** - Database passwords, API keys, and JWT secrets externalized
-- **CORS Configuration** - Proper cross-origin resource sharing
-- **Production Hardening** - Swagger disabled in production, restrictive logging
-
-## 📊 Monitoring & Health Checks
-
-### Health Check Components
-- **Database Health** - Connection and query validation
-- **Email Service Health** - SMTP configuration validation
-- **File System Health** - Upload directory accessibility
-- **Memory Health** - Memory usage monitoring
-- **Entity Framework Health** - Database context validation
-
-### Logging
-- **Structured Logging** - JSON-formatted logs with Serilog
-- **Request Tracking** - Correlation IDs for request tracing
-- **Performance Logging** - Request duration and performance metrics
-- **Error Logging** - Comprehensive error tracking
-- **File Rotation** - Automatic log file rotation
-
-### Monitoring Endpoints
-- **System Information** - Application and system details
-- **Performance Metrics** - Memory, CPU, and GC statistics
-- **Log Access** - Recent application logs
-- **Garbage Collection** - Manual GC trigger for testing
-
-## 🗄️ Database Management
-
-### Migrations
-The project includes a C# migration tool for easy database management:
+### Standalone Docker Run
 
 ```bash
-# Using the wrapper script (recommended)
-./migrate create AddNewFeature
-./migrate update Development
-./migrate reset Development
-./migrate script InitialCreate migration.sql
-./migrate rollback PreviousMigration
-./migrate drop Development
-./migrate status
-
-# Or directly with dotnet
-dotnet run --project MigrateTool -- create AddNewFeature
-dotnet run --project MigrateTool -- update Development
-```
-
-**Available Commands:**
-- `create <name>` - Create a new migration
-- `update [env]` - Update database (Development/Production)
-- `script [from] [output]` - Generate SQL script
-- `rollback <name>` - Rollback to specific migration
-- `remove` - Remove last migration (not applied)
-- `status` - Show migration status
-- `drop [env]` - Drop database for environment
-- `reset [env]` - Drop then apply migrations for environment
-
-The tool automatically loads environment variables from `.env.local` if present.
-
-### Data Seeding
-Automatic data seeding includes:
-- **Admin User** - Default administrator account
-- **Owner User** - Default business owner account
-- **Sample Services** - Web development and mobile app services
-- **Pricing Plans** - Sample pricing structures
-
-### Database Schema
-- **Users** - User accounts with roles and authentication
-- **Services** - Service offerings with features and pricing
-- **RukuServices** - Specialized service offerings
-- **Availabilities** - Service availability schedules
-- **Schedules** - Customer appointment scheduling
-
-## 🚀 Deployment
-
-### Docker Compose
-
-**Development:**
-```bash
-# Start the stack
-docker-compose -f docker-compose.dev.yml up --build
-
-# Run migrations (if needed)
-docker-compose exec ruku-service-api-dev dotnet ef database update
-
-# Check status
-docker-compose -f docker-compose.dev.yml ps
-
-# View logs
-docker-compose -f docker-compose.dev.yml logs -f
-```
-
-**Production:**
-```bash
-# Start the stack
-docker-compose -f docker-compose.prod.yml up --build
-
-# Run migrations (if needed)
-docker-compose exec ruku-service-api dotnet ef database update
-
-# Check status
-docker-compose -f docker-compose.prod.yml ps
-```
-
-**Key Points:**
-- Use `.env.docker` for Docker Compose deployments (configured via `env_file`).
-- Development: API on port `5002`, MySQL on port `3307`
-- Production: API on port `5000`, MySQL on port `3306`
-- Logs are stored in `./logs` and uploads in `./uploads` (both mounted as volumes).
-- MySQL healthchecks ensure the API waits for the database to be ready.
-- Connection strings must use service names: `mysql-dev` (dev) or `mysql` (prod).
-
-### Manual Docker Run
-
-```bash
-docker build -t ruku-service-api .
-export $(grep -v '^#' .env.local | xargs)
+docker build --target api -t ruku-service-api .
 docker run -p 5000:80 \
   --env-file .env.local \
-  -v "$(pwd)/logs:/var/log/ruku-service-api" \
-  -v "$(pwd)/uploads:/app/uploads" \
+  -v "$(pwd)/RukuServiceApi/logs:/app/logs" \
+  -v "$(pwd)/RukuServiceApi/uploads:/app/uploads" \
   ruku-service-api
 ```
 
-### Production Deployment Checklist
-- [ ] Copy `docker.env.template` to `.env.docker` and populate with production values
-- [ ] Set `CONNECTIONSTRING` with `Server=mysql` (Docker service name)
-- [ ] Set `ALLOWED_HOSTS` with semicolons: `yourdomain.com;www.yourdomain.com`
-- [ ] Set `MYSQL_ROOT_PASSWORD` to match your connection string password
-- [ ] Configure production secrets in your hosting platform or orchestrator
-- [ ] Provision the production MySQL database and run migrations:
-  ```bash
-  docker-compose -f docker-compose.prod.yml exec ruku-service-api dotnet ef database update
-  ```
-- [ ] Enable HTTPS (certificates, reverse proxy, or load balancer)
-- [ ] Configure log aggregation, backups, and monitoring alerts
-- [ ] Verify `/health`, `/health/ready`, and `/health/live` after deployment
-- [ ] Automate deployments via CI/CD (e.g., GitHub Actions)
+## Testing
 
-## 🧪 Testing
+The project has two test projects:
 
-### Running Tests
+### Integration Tests (`RukuServiceApi.IntegrationTests`)
+
+HTTP-level tests that hit the running API at `http://localhost:5002`. Requires the API server to be running.
+
 ```bash
-# Run all tests
-dotnet test
+# Start the API first
+dotnet run --project RukuServiceApi &
 
-# Run specific test project
-dotnet test RukuServiceApi.Tests
-
-# Run with coverage
-dotnet test --collect:"XPlat Code Coverage"
+# Run integration tests
+dotnet test RukuServiceApi.IntegrationTests
 ```
+
+Covers all controllers: Auth, Services, PublicServices, Availabilities, Schedules, Users, Email, UploadImage, Monitoring, and Health Checks.
+
+### Unit Tests (`RukuServiceApi.UnitTests`)
+
+Isolated tests with mocked dependencies. No running server required.
+
+```bash
+dotnet test RukuServiceApi.UnitTests
+```
+
+Covers: validators (CreateServiceRequest, UpdateServiceRequest, Contact, PricingPlan, CreateUserRequest, UpdateUserRole), services (AuthService, FileUploadService), middleware (SecurityHeaders, GlobalException, Validation), and health checks (Memory, EmailService).
+
+### Run All Tests
+
+```bash
+dotnet test
+```
+
+## Database Management
+
+### Migration Tool
+
+The project includes a C# CLI migration tool (`MigrateTool`):
+
+```bash
+./migrate create AddNewFeature       # Create a new migration
+./migrate update Development         # Apply migrations (Development)
+./migrate update Production          # Apply migrations (Production)
+./migrate reset Development          # Drop + reapply all migrations
+./migrate status                     # Show migration status
+./migrate script InitialCreate out.sql  # Generate SQL script
+./migrate rollback PreviousMigration # Rollback to specific migration
+./migrate remove                     # Remove last unapplied migration
+./migrate drop Development           # Drop database
+```
+
+Or use dotnet CLI directly:
+```bash
+dotnet ef migrations add <Name> --project RukuServiceApi
+dotnet ef database update --project RukuServiceApi
+```
+
+### Data Seeding
+
+**Admin user (all environments):** On every startup, the app checks for an admin user configured via environment variables. If the user does not already exist, it is created automatically.
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `ADMIN_EMAIL` | Yes | Admin account email |
+| `ADMIN_UID` | Yes | Firebase/auth UID |
+| `ADMIN_DISPLAY_NAME` | No | Display name (defaults to "Administrator") |
+
+If `ADMIN_EMAIL` or `ADMIN_UID` are not set, admin seeding is skipped with a warning.
+
+**Dev test users (Development only):** In Development mode, additional test users are seeded if no users exist:
+- Admin (`admin@rukuit.com` / `admin-uid-12345`)
+- Owner (`owner@rukuit.com` / `owner-uid-67890`)
+
+### Schema
+
+| Table | Description |
+|-------|-------------|
+| Users | Accounts with roles (Admin, Owner, Subscriber) |
+| Services | Service offerings with features and pricing plans |
+| Availabilities | Date ranges with services and timeslots |
+| Schedules | Customer appointment scheduling |
+
+## Security
+
+### Authentication & Authorization
+- JWT Bearer tokens with configurable expiration
+- Three roles: Admin, Owner, Subscriber
+- Policy-based authorization on all protected endpoints
+
+### Input Validation
+- FluentValidation for all request DTOs
+- File upload: type allowlist (.jpg, .jpeg, .png, .gif, .pdf), 10MB size limit
+
+### Security Headers
+Applied via middleware on every response:
+- `X-Content-Type-Options: nosniff`
+- `X-Frame-Options: DENY`
+- `X-XSS-Protection: 1; mode=block`
+- `Referrer-Policy: strict-origin-when-cross-origin`
+- `Strict-Transport-Security` (HSTS)
+
+### Environment Security
+- All secrets via environment variables (never hardcoded)
+- Swagger disabled in production
+- CORS restricted to configured origins
+- Nginx rate limiting: 10 requests/second with burst of 20
+
+## Monitoring & Health Checks
+
+### Health Check Components
+
+| Check | Tag | What It Validates |
+|-------|-----|------------------|
+| `database` | - | MySQL connection and query |
+| `email_service` | - | SMTP configuration |
+| `file_system` | - | Upload directory accessibility |
+| `memory` | - | Memory usage thresholds |
+| `db_context` | - | EF Core DbContext |
+
+### Logging
+
+Serilog with structured JSON output:
+- Console + rolling file sinks
+- Request/response logging with correlation IDs
+- Automatic log file rotation
+- Log levels configurable per environment
+
+### Production Deployment Checklist
+
+- [ ] Copy `docker.env.template` to `.env.docker` with production values
+- [ ] Set `CONNECTIONSTRING` with `Server=db` (Docker service name)
+- [ ] Set `ALLOWED_HOSTS` with semicolons: `yourdomain.com;www.yourdomain.com`
+- [ ] Set `MYSQL_ROOT_PASSWORD` matching the connection string password
+- [ ] Run `docker compose up --build`
+- [ ] Verify `/health`, `/health/ready`, `/health/live` return healthy
+- [ ] Configure SSL with Certbot and uncomment HTTPS in `nginx.conf`
+- [ ] Set up log aggregation, backups, and monitoring alerts

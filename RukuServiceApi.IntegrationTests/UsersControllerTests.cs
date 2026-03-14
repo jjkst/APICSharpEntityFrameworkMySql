@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace RukuServiceApi.Tests;
+namespace RukuServiceApi.IntegrationTests;
 
 [TestClass]
 public sealed class UsersControllerTests
@@ -120,6 +120,66 @@ public sealed class UsersControllerTests
             "application/json"
         );
         var response = await Client.PutAsync("/api/users/1/role", roleContent);
+
+        Assert.AreEqual(System.Net.HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task DeleteUser_WithAdminAuth_ShouldReturnNoContent()
+    {
+        // Register a throwaway user
+        var uniqueEmail = $"deleteuser{Guid.NewGuid()}@example.com";
+        var registerRequest = new
+        {
+            email = uniqueEmail,
+            uid = $"delete-uid-{Guid.NewGuid()}",
+            displayName = "User To Delete",
+            emailVerified = true,
+            provider = 1,
+        };
+
+        var registerContent = TestHelpers.CreateJsonContent(registerRequest);
+        var registerResponse = await Client.PostAsync("/api/auth/register", registerContent);
+        registerResponse.EnsureSuccessStatusCode();
+
+        var registerResponseContent = await registerResponse.Content.ReadAsStringAsync();
+        var registeredUser = JsonDocument.Parse(registerResponseContent);
+        var userId = registeredUser
+            .RootElement.GetProperty("user")
+            .GetProperty("id")
+            .GetInt32();
+
+        // Delete the user
+        var deleteRequest = TestHelpers.CreateAuthenticatedRequest(
+            HttpMethod.Delete,
+            $"/api/users/{userId}",
+            _adminToken
+        );
+        var deleteResponse = await Client.SendAsync(deleteRequest);
+
+        Assert.AreEqual(System.Net.HttpStatusCode.NoContent, deleteResponse.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task GetAllUsers_WithoutAuth_ShouldReturnUnauthorized()
+    {
+        var response = await Client.GetAsync("/api/users");
+
+        Assert.AreEqual(System.Net.HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task GetUserById_WithoutAuth_ShouldReturnUnauthorized()
+    {
+        var response = await Client.GetAsync("/api/users/1");
+
+        Assert.AreEqual(System.Net.HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task DeleteUser_WithoutAuth_ShouldReturnUnauthorized()
+    {
+        var response = await Client.DeleteAsync("/api/users/1");
 
         Assert.AreEqual(System.Net.HttpStatusCode.Unauthorized, response.StatusCode);
     }

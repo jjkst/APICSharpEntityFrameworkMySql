@@ -1,7 +1,7 @@
 using System.Text;
 using System.Text.Json;
 
-namespace RukuServiceApi.Tests;
+namespace RukuServiceApi.IntegrationTests;
 
 public static class TestHelpers
 {

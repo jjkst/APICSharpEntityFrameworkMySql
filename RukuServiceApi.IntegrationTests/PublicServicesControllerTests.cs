@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace RukuServiceApi.Tests;
+namespace RukuServiceApi.IntegrationTests;
 
 [TestClass]
 public sealed class PublicServicesControllerTests

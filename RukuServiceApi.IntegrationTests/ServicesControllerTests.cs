@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace RukuServiceApi.Tests;
+namespace RukuServiceApi.IntegrationTests;
 
 [TestClass]
 public sealed class ServicesControllerTests
@@ -160,6 +160,14 @@ public sealed class ServicesControllerTests
         var updatedService = JsonDocument.Parse(updateResponseContent);
 
         Assert.AreEqual(updateRequest.title, updatedService.RootElement.GetProperty("title").GetString());
+    }
+
+    [TestMethod]
+    public async Task GetAllServices_WithoutAuth_ShouldReturnUnauthorized()
+    {
+        var response = await Client.GetAsync("/api/services");
+
+        Assert.AreEqual(System.Net.HttpStatusCode.Unauthorized, response.StatusCode);
     }
 
     [TestMethod]

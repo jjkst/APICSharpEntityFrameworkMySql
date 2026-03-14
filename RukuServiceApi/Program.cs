@@ -336,10 +336,13 @@ try
         // Ensure database is created
         await context.Database.EnsureCreatedAsync();
 
-        // Seed database only in Development environment
+        // Seed admin user in all environments (reads from ADMIN_EMAIL, ADMIN_UID env vars)
+        var seeder = scope.ServiceProvider.GetRequiredService<IDatabaseSeeder>();
+        await seeder.SeedAdminAsync();
+
+        // Seed dev test users only in Development environment
         if (app.Environment.IsDevelopment())
         {
-            var seeder = scope.ServiceProvider.GetRequiredService<IDatabaseSeeder>();
             await seeder.SeedAsync();
         }
     }

@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace RukuServiceApi.Tests;
+namespace RukuServiceApi.IntegrationTests;
 
 [TestClass]
 public sealed class AvailabilitiesControllerTests
@@ -117,5 +117,106 @@ public sealed class AvailabilitiesControllerTests
                 fetchedAvailability.RootElement.GetProperty("id").GetInt32()
             );
         }
+    }
+
+    [TestMethod]
+    public async Task UpdateAvailability_WithValidData_ShouldReturnOk()
+    {
+        var availability = new
+        {
+            startDate = DateTime.Now.AddDays(20),
+            endDate = DateTime.Now.AddDays(27),
+            services = new[] { "Web Development" },
+            timeslots = new[] { "09:00", "10:00" },
+        };
+
+        var createContent = TestHelpers.CreateJsonContent(availability);
+        var createResponse = await Client.PostAsync("/api/availabilities", createContent);
+
+        if (createResponse.IsSuccessStatusCode)
+        {
+            var createResponseContent = await createResponse.Content.ReadAsStringAsync();
+            var createdAvailability = JsonDocument.Parse(createResponseContent);
+            var availabilityId = createdAvailability.RootElement.GetProperty("id").GetInt32();
+
+            var updateAvailability = new
+            {
+                id = availabilityId,
+                startDate = DateTime.Now.AddDays(21),
+                endDate = DateTime.Now.AddDays(26),
+                services = new[] { "Mobile App Development" },
+                timeslots = new[] { "14:00", "15:00" },
+            };
+
+            var updateContent = TestHelpers.CreateJsonContent(updateAvailability);
+            var updateResponse = await Client.PutAsync(
+                $"/api/availabilities/{availabilityId}",
+                updateContent
+            );
+
+            updateResponse.EnsureSuccessStatusCode();
+        }
+    }
+
+    [TestMethod]
+    public async Task DeleteAvailability_WithValidId_ShouldReturnNoContent()
+    {
+        var availability = new
+        {
+            startDate = DateTime.Now.AddDays(30),
+            endDate = DateTime.Now.AddDays(37),
+            services = new[] { "Web Development" },
+            timeslots = new[] { "09:00" },
+        };
+
+        var createContent = TestHelpers.CreateJsonContent(availability);
+        var createResponse = await Client.PostAsync("/api/availabilities", createContent);
+
+        if (createResponse.IsSuccessStatusCode)
+        {
+            var createResponseContent = await createResponse.Content.ReadAsStringAsync();
+            var createdAvailability = JsonDocument.Parse(createResponseContent);
+            var availabilityId = createdAvailability.RootElement.GetProperty("id").GetInt32();
+
+            var deleteResponse = await Client.DeleteAsync(
+                $"/api/availabilities/{availabilityId}"
+            );
+
+            Assert.AreEqual(System.Net.HttpStatusCode.NoContent, deleteResponse.StatusCode);
+        }
+    }
+
+    [TestMethod]
+    public async Task CreateAvailability_WithPastStartDate_ShouldReturnBadRequest()
+    {
+        var availability = new
+        {
+            startDate = DateTime.Now.AddDays(-1),
+            endDate = DateTime.Now.AddDays(5),
+            services = new[] { "Web Development" },
+            timeslots = new[] { "09:00" },
+        };
+
+        var content = TestHelpers.CreateJsonContent(availability);
+        var response = await Client.PostAsync("/api/availabilities", content);
+
+        Assert.AreEqual(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task CreateAvailability_WithEndDateBeforeStartDate_ShouldReturnBadRequest()
+    {
+        var availability = new
+        {
+            startDate = DateTime.Now.AddDays(10),
+            endDate = DateTime.Now.AddDays(5),
+            services = new[] { "Web Development" },
+            timeslots = new[] { "09:00" },
+        };
+
+        var content = TestHelpers.CreateJsonContent(availability);
+        var response = await Client.PostAsync("/api/availabilities", content);
+
+        Assert.AreEqual(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
     }
 }
