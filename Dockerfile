@@ -3,7 +3,6 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
 WORKDIR /src
 
 COPY RukuServiceApi/*.csproj ./RukuServiceApi/
-COPY RukuServiceApi.Tests/*.csproj ./RukuServiceApi.Tests/
 COPY MigrateTool/*.csproj ./MigrateTool/
 RUN dotnet restore "RukuServiceApi/RukuServiceApi.csproj"
 
