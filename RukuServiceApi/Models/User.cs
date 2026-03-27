@@ -27,5 +27,7 @@ namespace RukuServiceApi.Models
         Google = 1,
         Facebook = 2,
         Apple = 3,
+        GitHub = 4,
+        Email = 5,
     }
 }

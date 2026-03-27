@@ -124,6 +124,9 @@ builder.Services.Configure<FileUploadSettings>(
     builder.Configuration.GetSection("FileUploadSettings")
 );
 
+// Register HttpClient for OAuth flows
+builder.Services.AddHttpClient();
+
 // Register services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IFileUploadService, FileUploadService>();
