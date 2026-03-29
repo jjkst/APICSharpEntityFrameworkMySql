@@ -71,11 +71,8 @@ APICSharpEntityFrameworkMySql/
 ├── RukuServiceApi.UnitTests/            # Unit tests (MSTest, mocked dependencies)
 ├── MigrateTool/                         # CLI migration tool
 ├── Dockerfile                           # Multi-stage: build -> migrate -> api
-├── docker-compose.yml                   # Full stack: migrate, api, db, web (nginx)
-├── nginx.conf                           # Reverse proxy + Angular static files
-├── mariadb/my.cnf                       # MariaDB custom config
 ├── env.template                         # Local env vars template
-└── docker.env.template                  # Docker env vars template
+└── (see jk-portfolio-deploy for full-stack Docker Compose, nginx, mariadb config)
 ```
 
 ### Request Flow
@@ -949,67 +946,19 @@ The project uses a multi-stage Dockerfile with three targets:
 - **migrate** - Runs pending migrations, then exits
 - **api** - Lightweight Alpine-based runtime (~100MB)
 
-### Docker Compose Stack
+### Full-Stack Deployment
 
-The `docker-compose.yml` orchestrates four services:
+For deploying the complete stack (API + Angular frontend + MariaDB + Nginx + SSL), see the **[jk-portfolio-deploy](https://github.com/jjkst/jk-portfolio-deploy)** project.
 
-| Service | Container | Description |
-|---------|-----------|-------------|
-| `migrate` | `ruku_migrate` | Runs EF migrations on startup, then exits |
-| `api` | `ruku_api` | .NET 8 API (Alpine), 200MB memory limit |
-| `db` | `ruku_db` | MariaDB 10.11, 256MB memory limit |
-| `web` | `ruku_web` | Nginx: Angular static files + API reverse proxy |
+The deploy project provides:
+- Docker Compose orchestration for all services
+- Nginx reverse proxy with SSL/TLS via Let's Encrypt
+- Deployment scripts for Digital Ocean
+- Database backup automation
 
-Startup order: `db` (healthy) → `migrate` (completes) → `api` → `web`
+### Standalone Docker Run (API only)
 
-### Quick Start
-
-1. **Configure environment**
-   ```bash
-   cp docker.env.template .env.docker
-   ```
-   Edit `.env.docker`:
-   - Set `CONNECTIONSTRING=Server=db;Port=3306;Database=RukuITServicesProd;User=root;Password=your-password;`
-   - Set `MYSQL_ROOT_PASSWORD` to match the password above
-   - Set `ALLOWED_HOSTS=yourdomain.com;www.yourdomain.com`
-
-2. **Build and run**
-   ```bash
-   docker compose up --build
-   ```
-   Migrations run automatically before the API starts.
-
-3. **Access**
-   - Web (Nginx): http://localhost (port 80)
-   - API is internal, proxied through Nginx at `/api/`
-
-4. **Stop**
-   ```bash
-   docker compose down        # Stop containers
-   docker compose down -v     # Stop + remove volumes (clean slate)
-   ```
-
-### SSL/HTTPS
-
-The `nginx.conf` includes a commented-out HTTPS server block. To enable:
-
-1. Run Certbot for your domain
-2. Uncomment the HTTPS section in `nginx.conf`, replacing `your-domain.com`
-3. Restart: `docker compose restart web`
-
-Certificates are stored in the `certbot-conf` volume.
-
-### Volumes
-
-| Volume | Mount | Purpose |
-|--------|-------|---------|
-| `mysql-data` | MariaDB data dir | Persistent database storage |
-| `certbot-conf` | `/etc/letsencrypt` | SSL certificates |
-| `certbot-www` | `/var/www/certbot` | ACME challenge files |
-| `./RukuServiceApi/logs` | `/app/logs` | Application logs |
-| `./RukuServiceApi/uploads` | `/app/uploads` | Uploaded files |
-
-### Standalone Docker Run
+To run just the API container (e.g., for development or testing):
 
 ```bash
 docker build --target api -t ruku-service-api .
@@ -1150,11 +1099,10 @@ Serilog with structured JSON output:
 
 ### Production Deployment Checklist
 
-- [ ] Copy `docker.env.template` to `.env.docker` with production values
-- [ ] Set `CONNECTIONSTRING` with `Server=db` (Docker service name)
-- [ ] Set `ALLOWED_HOSTS` with semicolons: `yourdomain.com;www.yourdomain.com`
-- [ ] Set `MYSQL_ROOT_PASSWORD` matching the connection string password
-- [ ] Run `docker compose up --build`
-- [ ] Verify `/health`, `/health/ready`, `/health/live` return healthy
-- [ ] Configure SSL with Certbot and uncomment HTTPS in `nginx.conf`
-- [ ] Set up log aggregation, backups, and monitoring alerts
+See the **[jk-portfolio-deploy](https://github.com/jjkst/jk-portfolio-deploy)** project for the complete production deployment guide, including:
+
+- Environment configuration
+- Docker Compose orchestration
+- SSL/TLS setup with Let's Encrypt
+- Database backups
+- Digital Ocean droplet setup
